@@ -17,7 +17,6 @@ import logging
 import os
 import sys
 import time
-import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
@@ -672,7 +671,9 @@ Requirements:
 
         try:
             # Use implementation-specific model for code generation
-            impl_model = self.default_models.get("anthropic_implementation", self.default_models["anthropic"])
+            impl_model = self.default_models.get(
+                "anthropic_implementation", self.default_models["anthropic"]
+            )
             self.logger.info(f"🔧 Code generation using model: {impl_model}")
             response = await client.messages.create(
                 model=impl_model,
@@ -777,7 +778,9 @@ Requirements:
             # Google Gemini API call using the native SDK
             # client is google.genai.Client instance
             # Use implementation-specific model for code generation
-            impl_model = self.default_models.get("google_implementation", self.default_models["google"])
+            impl_model = self.default_models.get(
+                "google_implementation", self.default_models["google"]
+            )
             self.logger.info(f"🔧 Code generation using model: {impl_model}")
             response = await client.aio.models.generate_content(
                 model=impl_model,
@@ -1004,7 +1007,9 @@ Requirements:
         retry_delay = 2  # seconds
 
         # Use implementation-specific model for code generation
-        impl_model = self.default_models.get("openai_implementation", self.default_models["openai"])
+        impl_model = self.default_models.get(
+            "openai_implementation", self.default_models["openai"]
+        )
         self.logger.info(f"🔧 Code generation using model: {impl_model}")
 
         for attempt in range(max_retries):

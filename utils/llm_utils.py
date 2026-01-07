@@ -13,15 +13,15 @@ from typing import Any, Type, Dict, Tuple
 def get_api_keys(secrets_path: str = "mcp_agent.secrets.yaml") -> Dict[str, str]:
     """
     Get API keys from environment variables or secrets file.
-    
+
     Environment variables take precedence:
     - GOOGLE_API_KEY or GEMINI_API_KEY
-    - ANTHROPIC_API_KEY  
+    - ANTHROPIC_API_KEY
     - OPENAI_API_KEY
-    
+
     Args:
         secrets_path: Path to the secrets YAML file
-        
+
     Returns:
         Dict with 'google', 'anthropic', 'openai' keys
     """
@@ -29,20 +29,20 @@ def get_api_keys(secrets_path: str = "mcp_agent.secrets.yaml") -> Dict[str, str]
     if os.path.exists(secrets_path):
         with open(secrets_path, "r", encoding="utf-8") as f:
             secrets = yaml.safe_load(f) or {}
-    
+
     return {
         "google": (
-            os.environ.get("GOOGLE_API_KEY") or 
-            os.environ.get("GEMINI_API_KEY") or 
-            secrets.get("google", {}).get("api_key", "")
+            os.environ.get("GOOGLE_API_KEY")
+            or os.environ.get("GEMINI_API_KEY")
+            or secrets.get("google", {}).get("api_key", "")
         ).strip(),
         "anthropic": (
-            os.environ.get("ANTHROPIC_API_KEY") or 
-            secrets.get("anthropic", {}).get("api_key", "")
+            os.environ.get("ANTHROPIC_API_KEY")
+            or secrets.get("anthropic", {}).get("api_key", "")
         ).strip(),
         "openai": (
-            os.environ.get("OPENAI_API_KEY") or 
-            secrets.get("openai", {}).get("api_key", "")
+            os.environ.get("OPENAI_API_KEY")
+            or secrets.get("openai", {}).get("api_key", "")
         ).strip(),
     }
 
@@ -50,15 +50,15 @@ def get_api_keys(secrets_path: str = "mcp_agent.secrets.yaml") -> Dict[str, str]
 def load_api_config(secrets_path: str = "mcp_agent.secrets.yaml") -> Dict[str, Any]:
     """
     Load API configuration with environment variable override.
-    
+
     Environment variables take precedence over YAML values:
     - GOOGLE_API_KEY or GEMINI_API_KEY
     - ANTHROPIC_API_KEY
     - OPENAI_API_KEY
-    
+
     Args:
         secrets_path: Path to the secrets YAML file
-        
+
     Returns:
         Dict with provider configs including api_key values
     """
@@ -67,28 +67,33 @@ def load_api_config(secrets_path: str = "mcp_agent.secrets.yaml") -> Dict[str, A
     if os.path.exists(secrets_path):
         with open(secrets_path, "r", encoding="utf-8") as f:
             config = yaml.safe_load(f) or {}
-    
+
     # Get keys with env var override
     keys = get_api_keys(secrets_path)
-    
+
     # Merge into config structure
     for provider, key in keys.items():
         if key:
             config.setdefault(provider, {})["api_key"] = key
-    
+
     return config
 
 
 def _get_llm_class(provider: str) -> Type[Any]:
     """Lazily import and return the LLM class for a given provider."""
     if provider == "anthropic":
-        from mcp_agent.workflows.llm.augmented_llm_anthropic import AnthropicAugmentedLLM
+        from mcp_agent.workflows.llm.augmented_llm_anthropic import (
+            AnthropicAugmentedLLM,
+        )
+
         return AnthropicAugmentedLLM
     elif provider == "openai":
         from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
+
         return OpenAIAugmentedLLM
     elif provider == "google":
         from mcp_agent.workflows.llm.augmented_llm_google import GoogleAugmentedLLM
+
         return GoogleAugmentedLLM
     else:
         raise ValueError(f"Unknown provider: {provider}")
@@ -224,17 +229,23 @@ def get_default_models(config_path: str = "mcp_agent.config.yaml"):
             )
             openai_model = openai_config.get("default_model", "o3-mini")
             google_model = google_config.get("default_model", "gemini-2.0-flash")
-            
+
             # Phase-specific models (fall back to default if not specified)
             # Google
             google_planning = google_config.get("planning_model", google_model)
-            google_implementation = google_config.get("implementation_model", google_model)
+            google_implementation = google_config.get(
+                "implementation_model", google_model
+            )
             # Anthropic
             anthropic_planning = anthropic_config.get("planning_model", anthropic_model)
-            anthropic_implementation = anthropic_config.get("implementation_model", anthropic_model)
+            anthropic_implementation = anthropic_config.get(
+                "implementation_model", anthropic_model
+            )
             # OpenAI
             openai_planning = openai_config.get("planning_model", openai_model)
-            openai_implementation = openai_config.get("implementation_model", openai_model)
+            openai_implementation = openai_config.get(
+                "implementation_model", openai_model
+            )
 
             return {
                 "anthropic": anthropic_model,
