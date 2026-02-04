@@ -20,7 +20,7 @@ mcp:
     bocha-mcp:
       args:
       - tools/bocha_search_server.py
-      command: python3
+      command: python
       env:
         BOCHA_API_KEY: ''
         PYTHONPATH: .
@@ -105,12 +105,12 @@ mcp:
 # LLM Provider Priority (选择使用哪个LLM / Choose which LLM to use)
 # Options: "anthropic", "google", "openai"
 # If not set or provider unavailable, will fallback to first available provider
-llm_provider: "google"  # 设置为 "google", "anthropic", 或 "openai"
+llm_provider: "openai"  # 设置为 "google", "anthropic", 或 "openai"
 
 openai:
   base_max_tokens: 40000
   # default_model: google/gemini-2.5-pro
-  default_model: anthropic/claude-sonnet-4.5
+  default_model: google/gemini-3-flash-preview
   # default_model: openai/gpt-oss-120b
   # default_model: deepseek/deepseek-v3.2-exp
   # default_model: moonshotai/kimi-k2-thinking

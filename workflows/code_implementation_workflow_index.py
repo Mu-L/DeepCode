@@ -52,8 +52,11 @@ class CodeImplementationWorkflowWithIndex:
     def __init__(self, config_path: str = "mcp_agent.secrets.yaml"):
         """Initialize workflow with configuration"""
         self.config_path = config_path
+        # Derive main config path from secrets path (same directory)
+        secrets_dir = os.path.dirname(os.path.abspath(config_path))
+        self.main_config_path = os.path.join(secrets_dir, "mcp_agent.config.yaml")
         self.api_config = self._load_api_config()
-        self.default_models = get_default_models("mcp_agent.config.yaml")
+        self.default_models = get_default_models(self.main_config_path)
         self.logger = self._create_logger()
         self.mcp_agent = None
         self.enable_read_tools = (
@@ -506,7 +509,9 @@ Requirements:
         try:
             import yaml
 
-            config_path = "mcp_agent.config.yaml"
+            # Derive config path from secrets path (same directory)
+            secrets_dir = os.path.dirname(os.path.abspath(self.config_path))
+            config_path = os.path.join(secrets_dir, "mcp_agent.config.yaml")
             if os.path.exists(config_path):
                 with open(config_path, "r", encoding="utf-8") as f:
                     config = yaml.safe_load(f)

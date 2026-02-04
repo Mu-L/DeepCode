@@ -12,9 +12,12 @@ from typing import Any, Type, Dict, Tuple
 
 def get_api_keys(secrets_path: str = "mcp_agent.secrets.yaml") -> Dict[str, str]:
     """
-    Get API keys from environment variables or secrets file.
+    Get API keys from secrets file, with environment variables as fallback.
 
-    Environment variables take precedence:
+    Priority: secrets file > environment variables
+    This ensures mcp_agent.secrets.yaml configuration is respected.
+
+    Environment variable fallbacks (only used if secrets file has no value):
     - GOOGLE_API_KEY or GEMINI_API_KEY
     - ANTHROPIC_API_KEY
     - OPENAI_API_KEY
@@ -30,19 +33,23 @@ def get_api_keys(secrets_path: str = "mcp_agent.secrets.yaml") -> Dict[str, str]
         with open(secrets_path, "r", encoding="utf-8") as f:
             secrets = yaml.safe_load(f) or {}
 
+    # Config file takes priority, env vars are fallback only
     return {
         "google": (
-            os.environ.get("GOOGLE_API_KEY")
+            secrets.get("google", {}).get("api_key", "")
+            or os.environ.get("GOOGLE_API_KEY")
             or os.environ.get("GEMINI_API_KEY")
-            or secrets.get("google", {}).get("api_key", "")
+            or ""
         ).strip(),
         "anthropic": (
-            os.environ.get("ANTHROPIC_API_KEY")
-            or secrets.get("anthropic", {}).get("api_key", "")
+            secrets.get("anthropic", {}).get("api_key", "")
+            or os.environ.get("ANTHROPIC_API_KEY")
+            or ""
         ).strip(),
         "openai": (
-            os.environ.get("OPENAI_API_KEY")
-            or secrets.get("openai", {}).get("api_key", "")
+            secrets.get("openai", {}).get("api_key", "")
+            or os.environ.get("OPENAI_API_KEY")
+            or ""
         ).strip(),
     }
 
@@ -121,8 +128,9 @@ def get_preferred_llm_class(config_path: str = "mcp_agent.secrets.yaml") -> Type
         anthropic_key = keys["anthropic"]
         openai_key = keys["openai"]
 
-        # Read user preference from main config
-        main_config_path = "mcp_agent.config.yaml"
+        # Read user preference from main config (derive path from secrets path)
+        secrets_dir = os.path.dirname(os.path.abspath(config_path))
+        main_config_path = os.path.join(secrets_dir, "mcp_agent.config.yaml")
         preferred_provider = None
         if os.path.exists(main_config_path):
             with open(main_config_path, "r", encoding="utf-8") as f:
