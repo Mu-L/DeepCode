@@ -101,8 +101,13 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="p-4 border-t border-gray-100">
-        <div className="text-xs text-gray-400 text-center">
-          DeepCode v1.0.0
+        <div className="flex items-center justify-center space-x-2 text-xs text-gray-400">
+          <img
+            src="https://github.com/Zongwei9888/Experiment_Images/raw/43c585dca3d21b8e4b6390d835cdd34dc4b4b23d/DeepCode_images/title_logo.svg"
+            alt="DeepCode"
+            className="h-4 w-4"
+          />
+          <span>DeepCode v1.0.0</span>
         </div>
       </div>
     </aside>

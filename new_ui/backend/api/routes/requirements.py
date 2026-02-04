@@ -20,9 +20,7 @@ router = APIRouter()
 @router.post("/questions", response_model=QuestionsResponse)
 async def generate_questions(request: GenerateQuestionsRequest):
     """Generate guiding questions based on initial requirements"""
-    result = await requirement_service.generate_questions(
-        request.initial_requirement
-    )
+    result = await requirement_service.generate_questions(request.initial_requirement)
 
     if result["status"] != "success":
         raise HTTPException(

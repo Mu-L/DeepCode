@@ -3,11 +3,9 @@ Files API Routes
 Handles file upload and download operations
 """
 
-import os
 import uuid
 import shutil
 from pathlib import Path
-from typing import Optional
 
 from fastapi import APIRouter, File, UploadFile, HTTPException
 from fastapi.responses import FileResponse

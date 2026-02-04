@@ -3,7 +3,6 @@ Configuration management for DeepCode New UI Backend
 Reads from existing mcp_agent.config.yaml and mcp_agent.secrets.yaml
 """
 
-import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 

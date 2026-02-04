@@ -6,12 +6,14 @@ interface UrlInputProps {
   onSubmit: (url: string) => void;
   placeholder?: string;
   isLoading?: boolean;
+  disabled?: boolean;
 }
 
 export default function UrlInput({
   onSubmit,
   placeholder = 'https://arxiv.org/abs/...',
   isLoading = false,
+  disabled = false,
 }: UrlInputProps) {
   const [url, setUrl] = useState('');
   const [isValid, setIsValid] = useState<boolean | null>(null);
@@ -56,8 +58,8 @@ export default function UrlInput({
           onChange={(e) => handleChange(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
           placeholder={placeholder}
-          disabled={isLoading}
-          className={`w-full pl-10 pr-24 py-3 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors ${
+          disabled={isLoading || disabled}
+          className={`w-full pl-10 pr-24 py-3 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
             isValid === false
               ? 'border-red-300 bg-red-50'
               : isValid === true
@@ -84,7 +86,7 @@ export default function UrlInput({
           </AnimatePresence>
           <button
             onClick={handleSubmit}
-            disabled={!isValid || isLoading}
+            disabled={!isValid || isLoading || disabled}
             className="px-3 py-1.5 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? (

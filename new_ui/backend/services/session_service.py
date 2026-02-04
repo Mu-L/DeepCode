@@ -70,9 +70,7 @@ class SessionService:
                 }
             )
 
-    def get_history(
-        self, session_id: str, limit: int = 50
-    ) -> List[Dict[str, Any]]:
+    def get_history(self, session_id: str, limit: int = 50) -> List[Dict[str, Any]]:
         """Get conversation history for a session"""
         session = self.get_session(session_id)
         if session:
@@ -91,9 +89,7 @@ class SessionService:
         if session and task_id in session.active_tasks:
             session.active_tasks.remove(task_id)
 
-    def update_preferences(
-        self, session_id: str, preferences: Dict[str, Any]
-    ):
+    def update_preferences(self, session_id: str, preferences: Dict[str, Any]):
         """Update session preferences"""
         session = self.get_session(session_id)
         if session:

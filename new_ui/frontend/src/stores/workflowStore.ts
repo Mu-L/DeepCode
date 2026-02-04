@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type {
   WorkflowStatus,
   WorkflowStep,
@@ -7,9 +8,41 @@ import type {
   CHAT_PLANNING_STEPS,
 } from '../types/workflow';
 
+// Activity log entry type
+interface ActivityLogEntry {
+  id: string;
+  timestamp: Date;
+  message: string;
+  progress: number;
+  type: 'info' | 'success' | 'warning' | 'error' | 'progress';
+}
+
+// User-in-Loop interaction types
+export interface PendingInteraction {
+  type: string;  // 'requirement_questions' | 'plan_review' | etc.
+  title: string;
+  description: string;
+  data: {
+    questions?: Array<{
+      id: string;
+      question: string;
+      category?: string;
+      importance?: string;
+      hint?: string;
+    }>;
+    plan?: string;
+    plan_preview?: string;
+    original_input?: string;
+    [key: string]: unknown;
+  };
+  options: Record<string, string>;
+  required: boolean;
+}
+
 interface WorkflowState {
   // Current task
   activeTaskId: string | null;
+  workflowType: 'paper-to-code' | 'chat-planning' | null;  // Track workflow type
   status: WorkflowStatus;
   progress: number;
   message: string;
@@ -23,12 +56,22 @@ interface WorkflowState {
   currentFile: string | null;
   generatedFiles: string[];
 
+  // Activity logs
+  activityLogs: ActivityLogEntry[];
+
+  // User-in-Loop interaction
+  pendingInteraction: PendingInteraction | null;
+  isWaitingForInput: boolean;
+
   // Results
   result: Record<string, unknown> | null;
   error: string | null;
 
+  // Recovery
+  needsRecovery: boolean;  // Flag to indicate if we need to recover a task
+
   // Actions
-  setActiveTask: (taskId: string | null) => void;
+  setActiveTask: (taskId: string | null, workflowType?: 'paper-to-code' | 'chat-planning') => void;
   setStatus: (status: WorkflowStatus) => void;
   updateProgress: (progress: number, message: string) => void;
   setSteps: (steps: WorkflowStep[]) => void;
@@ -36,13 +79,18 @@ interface WorkflowState {
   appendStreamedCode: (chunk: string) => void;
   setCurrentFile: (filename: string | null) => void;
   addGeneratedFile: (filename: string) => void;
+  addActivityLog: (message: string, progress: number, type?: ActivityLogEntry['type']) => void;
+  setPendingInteraction: (interaction: PendingInteraction | null) => void;
+  clearInteraction: () => void;
   setResult: (result: Record<string, unknown> | null) => void;
   setError: (error: string | null) => void;
+  setNeedsRecovery: (needs: boolean) => void;
   reset: () => void;
 }
 
 const initialState = {
   activeTaskId: null,
+  workflowType: null as 'paper-to-code' | 'chat-planning' | null,
   status: 'idle' as WorkflowStatus,
   progress: 0,
   message: '',
@@ -51,14 +99,23 @@ const initialState = {
   streamedCode: '',
   currentFile: null,
   generatedFiles: [],
+  activityLogs: [] as ActivityLogEntry[],
+  pendingInteraction: null as PendingInteraction | null,
+  isWaitingForInput: false,
   result: null,
   error: null,
+  needsRecovery: false,
 };
 
-export const useWorkflowStore = create<WorkflowState>((set, get) => ({
-  ...initialState,
+export const useWorkflowStore = create<WorkflowState>()(
+  persist(
+    (set, get) => ({
+      ...initialState,
 
-  setActiveTask: (taskId) => set({ activeTaskId: taskId }),
+      setActiveTask: (taskId, workflowType) => set({
+        activeTaskId: taskId,
+        workflowType: workflowType ?? get().workflowType
+      }),
 
   setStatus: (status) => {
     console.log('[workflowStore] setStatus:', status);
@@ -123,6 +180,36 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
       generatedFiles: [...state.generatedFiles, filename],
     })),
 
+  addActivityLog: (message, progress, type = 'progress') =>
+    set((state) => ({
+      activityLogs: [
+        ...state.activityLogs,
+        {
+          id: `log-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          timestamp: new Date(),
+          message,
+          progress,
+          type,
+        },
+      ],
+    })),
+
+  setPendingInteraction: (interaction) => {
+    console.log('[workflowStore] setPendingInteraction:', interaction?.type);
+    set({
+      pendingInteraction: interaction,
+      isWaitingForInput: interaction !== null,
+    });
+  },
+
+  clearInteraction: () => {
+    console.log('[workflowStore] clearInteraction');
+    set({
+      pendingInteraction: null,
+      isWaitingForInput: false,
+    });
+  },
+
   setResult: (result) => {
     console.log('[workflowStore] setResult:', result);
     set({ result });
@@ -130,5 +217,35 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
 
   setError: (error) => set({ error, status: error ? 'error' : get().status }),
 
-  reset: () => set(initialState),
-}));
+  setNeedsRecovery: (needs) => set({ needsRecovery: needs }),
+
+  reset: () => {
+    console.log('[workflowStore] Resetting state and clearing localStorage');
+    // Clear localStorage explicitly to ensure clean state
+    try {
+      localStorage.removeItem('deepcode-workflow');
+    } catch (e) {
+      console.error('[workflowStore] Failed to clear localStorage:', e);
+    }
+    set(initialState);
+  },
+    }),
+    {
+      name: 'deepcode-workflow',
+      // Only persist task-related data for recovery when task is running or waiting
+      partialize: (state) => {
+        const isActive = state.status === 'running' || state.isWaitingForInput;
+        return {
+          // Only persist activeTaskId if task is still running or waiting for input
+          // This prevents trying to recover completed/errored tasks
+          activeTaskId: isActive ? state.activeTaskId : null,
+          workflowType: isActive ? state.workflowType : null,
+          status: isActive ? state.status : 'idle',
+          progress: isActive ? state.progress : 0,
+          steps: isActive ? state.steps : [],
+          isWaitingForInput: state.isWaitingForInput,
+        };
+      },
+    }
+  )
+);

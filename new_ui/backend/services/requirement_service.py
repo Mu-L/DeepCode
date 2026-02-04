@@ -7,19 +7,19 @@ sys.path is configured in main.py at startup.
 """
 
 import json
-from typing import Optional, Dict, Any, List
+from typing import Dict, Any
 
 
 class RequirementService:
     """Service for requirement analysis operations"""
 
-    async def generate_questions(
-        self, initial_requirement: str
-    ) -> Dict[str, Any]:
+    async def generate_questions(self, initial_requirement: str) -> Dict[str, Any]:
         """Generate guiding questions based on initial requirements"""
         try:
             # Lazy import - DeepCode module found via sys.path set in main.py
-            from workflows.agent_orchestration_engine import execute_requirement_analysis_workflow
+            from workflows.agent_orchestration_engine import (
+                execute_requirement_analysis_workflow,
+            )
 
             result = await execute_requirement_analysis_workflow(
                 user_input=initial_requirement,
@@ -56,7 +56,9 @@ class RequirementService:
         """Summarize requirements based on initial input and user answers"""
         try:
             # Lazy import - DeepCode module found via sys.path set in main.py
-            from workflows.agent_orchestration_engine import execute_requirement_analysis_workflow
+            from workflows.agent_orchestration_engine import (
+                execute_requirement_analysis_workflow,
+            )
 
             result = await execute_requirement_analysis_workflow(
                 user_input=initial_requirement,
@@ -91,7 +93,9 @@ class RequirementService:
         """Modify requirements based on user feedback"""
         try:
             # Lazy import - DeepCode module found via sys.path set in main.py
-            from workflows.agents.requirement_analysis_agent import RequirementAnalysisAgent
+            from workflows.agents.requirement_analysis_agent import (
+                RequirementAnalysisAgent,
+            )
 
             agent = RequirementAnalysisAgent()
             await agent.initialize()

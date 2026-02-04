@@ -11,7 +11,7 @@ import asyncio
 import uuid
 import os
 from datetime import datetime
-from typing import Optional, Dict, Any, Callable
+from typing import Optional, Dict, Any, Callable, List
 from dataclasses import dataclass, field
 
 from settings import CONFIG_PATH, PROJECT_ROOT
@@ -22,7 +22,7 @@ class WorkflowTask:
     """Represents a running workflow task"""
 
     task_id: str
-    status: str = "pending"
+    status: str = "pending"  # pending | running | waiting_for_input | completed | error | cancelled
     progress: int = 0
     message: str = ""
     result: Optional[Dict[str, Any]] = None
@@ -30,6 +30,10 @@ class WorkflowTask:
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     cancel_event: asyncio.Event = field(default_factory=asyncio.Event)
+    # User-in-Loop support
+    pending_interaction: Optional[Dict[str, Any]] = (
+        None  # Current interaction request waiting for user
+    )
 
 
 class WorkflowService:
@@ -38,7 +42,23 @@ class WorkflowService:
     def __init__(self):
         self._tasks: Dict[str, WorkflowTask] = {}
         # Changed: Each task can have multiple subscriber queues
-        self._subscribers: Dict[str, list[asyncio.Queue]] = {}
+        self._subscribers: Dict[str, List[asyncio.Queue]] = {}
+        # User-in-Loop plugin integration (lazy loaded)
+        self._plugin_integration = None
+        self._plugin_enabled = True  # Can be disabled via config
+
+    def _get_plugin_integration(self):
+        """Lazy load the plugin integration system."""
+        if self._plugin_integration is None and self._plugin_enabled:
+            try:
+                from workflows.plugins.integration import WorkflowPluginIntegration
+
+                self._plugin_integration = WorkflowPluginIntegration(self)
+                print("[WorkflowService] Plugin integration initialized")
+            except ImportError as e:
+                print(f"[WorkflowService] Plugin system not available: {e}")
+                self._plugin_enabled = False
+        return self._plugin_integration
 
     def create_task(self) -> WorkflowTask:
         """Create a new workflow task"""
@@ -59,27 +79,35 @@ class WorkflowService:
             return None
         queue = asyncio.Queue()
         self._subscribers[task_id].append(queue)
-        print(f"[Subscribe] Success: task={task_id[:8]}... total_subscribers={len(self._subscribers[task_id])}")
+        print(
+            f"[Subscribe] Success: task={task_id[:8]}... total_subscribers={len(self._subscribers[task_id])}"
+        )
         return queue
 
     def unsubscribe(self, task_id: str, queue: asyncio.Queue):
         """Unsubscribe from a task's progress updates."""
         if task_id in self._subscribers and queue in self._subscribers[task_id]:
             self._subscribers[task_id].remove(queue)
-            print(f"[Unsubscribe] task={task_id[:8]}... remaining={len(self._subscribers[task_id])}")
+            print(
+                f"[Unsubscribe] task={task_id[:8]}... remaining={len(self._subscribers[task_id])}"
+            )
 
     async def _broadcast(self, task_id: str, message: Dict[str, Any]):
         """Broadcast a message to all subscribers of a task."""
         if task_id in self._subscribers:
             subscriber_count = len(self._subscribers[task_id])
-            print(f"[Broadcast] task={task_id[:8]}... type={message.get('type')} subscribers={subscriber_count}")
+            print(
+                f"[Broadcast] task={task_id[:8]}... type={message.get('type')} subscribers={subscriber_count}"
+            )
             for queue in self._subscribers[task_id]:
                 try:
                     await queue.put(message)
                 except Exception as e:
                     print(f"[Broadcast] Failed to send to queue: {e}")
         else:
-            print(f"[Broadcast] No subscribers for task={task_id[:8]}... type={message.get('type')}")
+            print(
+                f"[Broadcast] No subscribers for task={task_id[:8]}... type={message.get('type')}"
+            )
 
     def get_progress_queue(self, task_id: str) -> Optional[asyncio.Queue]:
         """Get progress queue for a task (deprecated, use subscribe instead)"""
@@ -107,7 +135,7 @@ class WorkflowService:
                         "progress": progress,
                         "message": message,
                         "timestamp": datetime.utcnow().isoformat(),
-                    }
+                    },
                 )
             )
 
@@ -118,12 +146,14 @@ class WorkflowService:
         task_id: str,
         input_source: str,
         input_type: str,
-        enable_indexing: bool = True,
+        enable_indexing: bool = False,
     ) -> Dict[str, Any]:
         """Execute paper-to-code workflow"""
         # Lazy imports - DeepCode modules found via sys.path set in main.py
         from mcp_agent.app import MCPApp
-        from workflows.agent_orchestration_engine import execute_multi_agent_research_pipeline
+        from workflows.agent_orchestration_engine import (
+            execute_multi_agent_research_pipeline,
+        )
 
         task = self._tasks.get(task_id)
         if not task:
@@ -173,7 +203,7 @@ class WorkflowService:
                         "task_id": task_id,
                         "status": "success",
                         "result": task.result,
-                    }
+                    },
                 )
                 # Give WebSocket handlers time to receive the completion message
                 await asyncio.sleep(0.5)
@@ -192,7 +222,7 @@ class WorkflowService:
                     "type": "error",
                     "task_id": task_id,
                     "error": str(e),
-                }
+                },
             )
 
             return {"status": "error", "error": str(e)}
@@ -205,12 +235,15 @@ class WorkflowService:
         self,
         task_id: str,
         requirements: str,
-        enable_indexing: bool = True,
+        enable_indexing: bool = False,
+        enable_user_interaction: bool = True,  # Enable User-in-Loop by default
     ) -> Dict[str, Any]:
         """Execute chat-based planning workflow"""
         # Lazy imports - DeepCode modules found via sys.path set in main.py
         from mcp_agent.app import MCPApp
-        from workflows.agent_orchestration_engine import execute_chat_based_planning_pipeline
+        from workflows.agent_orchestration_engine import (
+            execute_chat_based_planning_pipeline,
+        )
 
         task = self._tasks.get(task_id)
         if not task:
@@ -236,9 +269,55 @@ class WorkflowService:
                 # Add current working directory to filesystem server args
                 context.config.mcp.servers["filesystem"].args.extend([os.getcwd()])
 
-                # Execute the pipeline
+                # --- User-in-Loop: Before Planning Hook ---
+                final_requirements = requirements
+                plugin_integration = self._get_plugin_integration()
+
+                if enable_user_interaction and plugin_integration:
+                    try:
+                        from workflows.plugins import InteractionPoint
+
+                        # Create plugin context
+                        plugin_context = plugin_integration.create_context(
+                            task_id=task_id,
+                            user_input=requirements,
+                            requirements=requirements,
+                            enable_indexing=enable_indexing,
+                        )
+
+                        # Run BEFORE_PLANNING plugins (requirement analysis)
+                        plugin_context = await plugin_integration.run_hook(
+                            InteractionPoint.BEFORE_PLANNING, plugin_context
+                        )
+
+                        # Check if workflow was cancelled by user
+                        if plugin_context.get("workflow_cancelled"):
+                            task.status = "cancelled"
+                            task.completed_at = datetime.utcnow()
+                            return {
+                                "status": "cancelled",
+                                "reason": plugin_context.get(
+                                    "cancel_reason", "Cancelled by user"
+                                ),
+                            }
+
+                        # Use potentially enhanced requirements
+                        final_requirements = plugin_context.get(
+                            "requirements", requirements
+                        )
+                        print(
+                            f"[WorkflowService] Requirements after plugin: {len(final_requirements)} chars"
+                        )
+
+                    except Exception as plugin_error:
+                        print(
+                            f"[WorkflowService] Plugin error (continuing without): {plugin_error}"
+                        )
+                        # Continue without plugin enhancement
+
+                # Execute the pipeline with (possibly enhanced) requirements
                 result = await execute_chat_based_planning_pipeline(
-                    requirements,
+                    final_requirements,
                     logger,
                     progress_callback,
                     enable_indexing=enable_indexing,
@@ -260,7 +339,7 @@ class WorkflowService:
                         "task_id": task_id,
                         "status": "success",
                         "result": task.result,
-                    }
+                    },
                 )
                 # Give WebSocket handlers time to receive the completion message
                 await asyncio.sleep(0.5)
@@ -279,7 +358,7 @@ class WorkflowService:
                     "type": "error",
                     "task_id": task_id,
                     "error": str(e),
-                }
+                },
             )
 
             return {"status": "error", "error": str(e)}
@@ -303,6 +382,17 @@ class WorkflowService:
             del self._tasks[task_id]
         if task_id in self._subscribers:
             del self._subscribers[task_id]
+
+    def get_active_tasks(self) -> List[WorkflowTask]:
+        """Get all tasks that are currently running"""
+        return [task for task in self._tasks.values() if task.status == "running"]
+
+    def get_recent_tasks(self, limit: int = 10) -> List[WorkflowTask]:
+        """Get recent tasks sorted by start time (newest first)"""
+        tasks = list(self._tasks.values())
+        # Sort by started_at descending (newest first)
+        tasks.sort(key=lambda t: t.started_at or datetime.min, reverse=True)
+        return tasks[:limit]
 
 
 # Global service instance

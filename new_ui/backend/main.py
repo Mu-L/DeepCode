@@ -75,8 +75,12 @@ app.add_middleware(
 
 # Include REST API routes
 app.include_router(workflows.router, prefix="/api/v1/workflows", tags=["Workflows"])
-app.include_router(requirements.router, prefix="/api/v1/requirements", tags=["Requirements"])
-app.include_router(config_routes.router, prefix="/api/v1/config", tags=["Configuration"])
+app.include_router(
+    requirements.router, prefix="/api/v1/requirements", tags=["Requirements"]
+)
+app.include_router(
+    config_routes.router, prefix="/api/v1/config", tags=["Configuration"]
+)
 app.include_router(files.router, prefix="/api/v1/files", tags=["Files"])
 
 # Include WebSocket routes

@@ -107,13 +107,12 @@ mcp:
 # If not set or provider unavailable, will fallback to first available provider
 llm_provider: "openai"  # 设置为 "google", "anthropic", 或 "openai"
 
+#openrouter can be used here and openai professional key
 openai:
   base_max_tokens: 40000
-  # default_model: google/gemini-2.5-pro
-  default_model: google/gemini-3-flash-preview
-  # default_model: openai/gpt-oss-120b
-  # default_model: deepseek/deepseek-v3.2-exp
-  # default_model: moonshotai/kimi-k2-thinking
+  default_model: "google/gemini-3-flash-preview"
+  planning_model: "google/gemini-3-flash-preview"
+  implementation_model: "google/gemini-3-flash-preview"
   reasoning_effort: low  # Only for thinking models
   max_tokens_policy: adaptive
   retry_max_tokens: 32768
@@ -131,9 +130,5 @@ anthropic:
   planning_model: "claude-sonnet-4.5"
   implementation_model: "claude-sonnet-3.5"
 
-openai:
-  default_model: "o3-mini"
-  planning_model: "o3-mini"
-  implementation_model: "gpt-4o"
 
 planning_mode: traditional

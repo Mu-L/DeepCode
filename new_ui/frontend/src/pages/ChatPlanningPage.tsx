@@ -1,32 +1,40 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Card, Button } from '../components/common';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Card } from '../components/common';
 import { ChatInput } from '../components/input';
-import { ProgressTracker, CodeStreamViewer } from '../components/streaming';
+import { ProgressTracker, ActivityLogViewer } from '../components/streaming';
 import { FileTree } from '../components/results';
+import { InlineChatInteraction } from '../components/interaction';
 import { useWorkflowStore } from '../stores/workflowStore';
 import { useSessionStore } from '../stores/sessionStore';
 import { useStreaming } from '../hooks/useStreaming';
 import { workflowsApi } from '../services/api';
 import { toast } from '../components/common/Toaster';
 import { CHAT_PLANNING_STEPS } from '../types/workflow';
-import { MessageSquare, User, Bot, CheckCircle, XCircle, FolderOpen } from 'lucide-react';
+import { MessageSquare, User, Bot, CheckCircle, XCircle, FolderOpen, StopCircle } from 'lucide-react';
+import { ConfirmDialog } from '../components/common/ConfirmDialog';
 
 export default function ChatPlanningPage() {
-  const [enableIndexing, setEnableIndexing] = useState(true);
+  const [enableIndexing, setEnableIndexing] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const {
     activeTaskId,
     status,
     progress,
+    message,
     steps,
-    streamedCode,
-    currentFile,
     generatedFiles,
+    activityLogs,
+    pendingInteraction,
+    isWaitingForInput,
     result,
     error,
     setActiveTask,
     setSteps,
+    setStatus,
     reset,
   } = useWorkflowStore();
 
@@ -36,17 +44,24 @@ export default function ChatPlanningPage() {
   // Debug: log status changes
   console.log('[ChatPlanningPage] status:', status, 'result:', result, 'error:', error);
 
+  // Auto-scroll to bottom when new messages or interactions appear
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [conversationHistory.length, pendingInteraction]);
+
   // Show toast and add message when workflow completes
   useEffect(() => {
     if (status === 'completed' && result) {
       toast.success('Code generation complete!', 'Your project has been generated successfully.');
       // Add completion message to chat
-      const codeDir = result.repo_result && typeof result.repo_result === 'object' 
+      const codeDir = result.repo_result && typeof result.repo_result === 'object'
         ? (result.repo_result as Record<string, unknown>).code_directory as string
         : null;
       addMessage({
         role: 'assistant',
-        content: codeDir 
+        content: codeDir
           ? `Code generation complete! Your project has been generated at:\n\n${codeDir}`
           : 'Code generation complete! Your project has been successfully generated.',
       });
@@ -58,6 +73,29 @@ export default function ChatPlanningPage() {
       });
     }
   }, [status, error, result, addMessage]);
+
+  // Handle task cancellation
+  const handleCancelTask = async () => {
+    if (!activeTaskId) return;
+
+    setIsCancelling(true);
+    try {
+      await workflowsApi.cancel(activeTaskId);
+      setStatus('idle');
+      reset();
+      addMessage({
+        role: 'assistant',
+        content: 'Task cancelled. Feel free to start a new request.',
+      });
+      toast.info('Task cancelled', 'The workflow has been stopped.');
+    } catch (err) {
+      toast.error('Cancel failed', 'Could not cancel the task.');
+      console.error('Cancel error:', err);
+    } finally {
+      setIsCancelling(false);
+      setShowCancelDialog(false);
+    }
+  };
 
   const handleSubmit = async (message: string) => {
     try {
@@ -72,7 +110,7 @@ export default function ChatPlanningPage() {
         enableIndexing
       );
 
-      setActiveTask(response.task_id);
+      setActiveTask(response.task_id, 'chat-planning');
       addMessage({
         role: 'assistant',
         content: 'Starting code generation...',
@@ -120,8 +158,8 @@ export default function ChatPlanningPage() {
             </div>
 
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {conversationHistory.length === 0 ? (
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+              {conversationHistory.length === 0 && !pendingInteraction ? (
                 <div className="h-full flex items-center justify-center text-center text-gray-400">
                   <div>
                     <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-50" />
@@ -131,39 +169,51 @@ export default function ChatPlanningPage() {
                   </div>
                 </div>
               ) : (
-                conversationHistory.map((msg) => (
-                  <motion.div
-                    key={msg.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`flex items-start space-x-3 ${
-                      msg.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-                    }`}
-                  >
-                    <div
-                      className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                        msg.role === 'user'
-                          ? 'bg-primary-100'
-                          : 'bg-gray-100'
+                <>
+                  {conversationHistory.map((msg) => (
+                    <motion.div
+                      key={msg.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`flex items-start space-x-3 ${
+                        msg.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
                       }`}
                     >
-                      {msg.role === 'user' ? (
-                        <User className="h-4 w-4 text-primary-600" />
-                      ) : (
-                        <Bot className="h-4 w-4 text-gray-600" />
-                      )}
-                    </div>
-                    <div
-                      className={`max-w-[80%] px-4 py-2 rounded-2xl ${
-                        msg.role === 'user'
-                          ? 'bg-primary-500 text-white'
-                          : 'bg-gray-100 text-gray-900'
-                      }`}
-                    >
-                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                    </div>
-                  </motion.div>
-                ))
+                      <div
+                        className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                          msg.role === 'user'
+                            ? 'bg-primary-100'
+                            : 'bg-gray-100'
+                        }`}
+                      >
+                        {msg.role === 'user' ? (
+                          <User className="h-4 w-4 text-primary-600" />
+                        ) : (
+                          <Bot className="h-4 w-4 text-gray-600" />
+                        )}
+                      </div>
+                      <div
+                        className={`max-w-[80%] px-4 py-2 rounded-2xl ${
+                          msg.role === 'user'
+                            ? 'bg-primary-500 text-white'
+                            : 'bg-gray-100 text-gray-900'
+                        }`}
+                      >
+                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+
+                  {/* Inline Interaction - displayed in chat flow */}
+                  <AnimatePresence>
+                    {pendingInteraction && activeTaskId && (
+                      <InlineChatInteraction
+                        taskId={activeTaskId}
+                        interaction={pendingInteraction}
+                      />
+                    )}
+                  </AnimatePresence>
+                </>
               )}
             </div>
 
@@ -184,12 +234,25 @@ export default function ChatPlanningPage() {
                 type="checkbox"
                 checked={enableIndexing}
                 onChange={(e) => setEnableIndexing(e.target.checked)}
-                className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                disabled={isRunning}
+                className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500 disabled:opacity-50"
               />
-              <span className="text-sm text-gray-700">
+              <span className={`text-sm ${isRunning ? 'text-gray-400' : 'text-gray-700'}`}>
                 Enable code indexing for better results
               </span>
             </label>
+
+            {/* Cancel Button */}
+            {isRunning && (
+              <button
+                onClick={() => setShowCancelDialog(true)}
+                disabled={isCancelling}
+                className="mt-4 w-full flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+              >
+                <StopCircle className="h-4 w-4" />
+                <span>Cancel Task</span>
+              </button>
+            )}
           </Card>
         </div>
 
@@ -202,11 +265,11 @@ export default function ChatPlanningPage() {
             </Card>
           )}
 
-          {/* Code Stream */}
-          <CodeStreamViewer
-            code={streamedCode}
-            currentFile={currentFile}
-            isStreaming={isRunning}
+          {/* Activity Log */}
+          <ActivityLogViewer
+            logs={activityLogs}
+            isRunning={isRunning && !isWaitingForInput}
+            currentMessage={isWaitingForInput ? 'Waiting for your input...' : message}
           />
 
           {/* Generated Files */}
@@ -267,6 +330,18 @@ export default function ChatPlanningPage() {
           )}
         </div>
       </div>
+
+      {/* Cancel Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showCancelDialog}
+        title="Cancel Task?"
+        message="Are you sure you want to cancel this task? Any progress will be lost and you'll need to start over."
+        confirmLabel="Yes, Cancel"
+        cancelLabel="Keep Running"
+        variant="danger"
+        onConfirm={handleCancelTask}
+        onCancel={() => setShowCancelDialog(false)}
+      />
     </div>
   );
 }

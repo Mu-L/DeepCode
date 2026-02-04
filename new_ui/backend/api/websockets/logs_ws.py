@@ -6,7 +6,6 @@ Provides real-time log streaming
 import asyncio
 import json
 from datetime import datetime
-from pathlib import Path
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from settings import PROJECT_ROOT
@@ -70,32 +69,38 @@ async def logs_websocket(websocket: WebSocket, session_id: str):
 
                                 try:
                                     log_entry = json.loads(line)
-                                    await websocket.send_json({
-                                        "type": "log",
-                                        "level": log_entry.get("level", "INFO"),
-                                        "message": log_entry.get("message", ""),
-                                        "namespace": log_entry.get("namespace", ""),
-                                        "timestamp": log_entry.get(
-                                            "timestamp",
-                                            datetime.utcnow().isoformat()
-                                        ),
-                                    })
+                                    await websocket.send_json(
+                                        {
+                                            "type": "log",
+                                            "level": log_entry.get("level", "INFO"),
+                                            "message": log_entry.get("message", ""),
+                                            "namespace": log_entry.get("namespace", ""),
+                                            "timestamp": log_entry.get(
+                                                "timestamp",
+                                                datetime.utcnow().isoformat(),
+                                            ),
+                                        }
+                                    )
                                 except json.JSONDecodeError:
                                     # Raw text log
-                                    await websocket.send_json({
-                                        "type": "log",
-                                        "level": "INFO",
-                                        "message": line,
-                                        "namespace": "",
-                                        "timestamp": datetime.utcnow().isoformat(),
-                                    })
+                                    await websocket.send_json(
+                                        {
+                                            "type": "log",
+                                            "level": "INFO",
+                                            "message": line,
+                                            "namespace": "",
+                                            "timestamp": datetime.utcnow().isoformat(),
+                                        }
+                                    )
 
                         except Exception as e:
-                            await websocket.send_json({
-                                "type": "error",
-                                "message": f"Error reading log file: {str(e)}",
-                                "timestamp": datetime.utcnow().isoformat(),
-                            })
+                            await websocket.send_json(
+                                {
+                                    "type": "error",
+                                    "message": f"Error reading log file: {str(e)}",
+                                    "timestamp": datetime.utcnow().isoformat(),
+                                }
+                            )
 
                 # Wait before checking for more logs
                 await asyncio.sleep(0.5)

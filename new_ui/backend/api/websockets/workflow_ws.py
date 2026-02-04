@@ -71,45 +71,73 @@ async def workflow_websocket(websocket: WebSocket, task_id: str):
     # Subscribe to get our own queue for this task
     queue = workflow_service.subscribe(task_id)
     task = workflow_service.get_task(task_id)
-    print(f"[WorkflowWS] Subscribed: task={task_id[:8]}... queue={queue is not None} task={task is not None}")
+    print(
+        f"[WorkflowWS] Subscribed: task={task_id[:8]}... queue={queue is not None} task={task is not None}"
+    )
 
     if not task:
-        await websocket.send_json({
-            "type": "error",
-            "task_id": task_id,
-            "error": "Task not found",
-            "timestamp": datetime.utcnow().isoformat(),
-        })
+        await websocket.send_json(
+            {
+                "type": "error",
+                "task_id": task_id,
+                "error": "Task not found",
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+        )
         await websocket.close()
         return
 
     # Send current status
-    await websocket.send_json({
-        "type": "status",
-        "task_id": task_id,
-        "status": task.status,
-        "progress": task.progress,
-        "message": task.message,
-        "timestamp": datetime.utcnow().isoformat(),
-    })
+    await websocket.send_json(
+        {
+            "type": "status",
+            "task_id": task_id,
+            "status": task.status,
+            "progress": task.progress,
+            "message": task.message,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+    )
+
+    # Send pending interaction if any (fixes race condition where interaction_required
+    # was broadcast before WebSocket connected)
+    if task.pending_interaction:
+        print(f"[WorkflowWS] Sending missed pending interaction: task={task_id[:8]}...")
+        await websocket.send_json(
+            {
+                "type": "interaction_required",
+                "task_id": task_id,
+                "interaction_type": task.pending_interaction.get("type"),
+                "title": task.pending_interaction.get("title"),
+                "description": task.pending_interaction.get("description"),
+                "data": task.pending_interaction.get("data"),
+                "options": task.pending_interaction.get("options"),
+                "required": task.pending_interaction.get("required"),
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+        )
 
     try:
         # If task is already completed, send final status and close
         if task.status in ("completed", "error", "cancelled"):
             if task.status == "completed":
-                await websocket.send_json({
-                    "type": "complete",
-                    "task_id": task_id,
-                    "result": task.result,
-                    "timestamp": datetime.utcnow().isoformat(),
-                })
+                await websocket.send_json(
+                    {
+                        "type": "complete",
+                        "task_id": task_id,
+                        "result": task.result,
+                        "timestamp": datetime.utcnow().isoformat(),
+                    }
+                )
             elif task.status == "error":
-                await websocket.send_json({
-                    "type": "error",
-                    "task_id": task_id,
-                    "error": task.error,
-                    "timestamp": datetime.utcnow().isoformat(),
-                })
+                await websocket.send_json(
+                    {
+                        "type": "error",
+                        "task_id": task_id,
+                        "error": task.error,
+                        "timestamp": datetime.utcnow().isoformat(),
+                    }
+                )
             # Close WebSocket (don't cleanup immediately - keep task for status queries)
             await websocket.close()
             return
@@ -119,16 +147,18 @@ async def workflow_websocket(websocket: WebSocket, task_id: str):
             while True:
                 try:
                     # Wait for progress update with timeout
-                    message = await asyncio.wait_for(
-                        queue.get(), timeout=60.0
-                    )
+                    message = await asyncio.wait_for(queue.get(), timeout=60.0)
                     msg_type = message.get("type")
-                    print(f"[WorkflowWS] Sending: task={task_id[:8]}... type={msg_type}")
+                    print(
+                        f"[WorkflowWS] Sending: task={task_id[:8]}... type={msg_type}"
+                    )
                     await websocket.send_json(message)
 
                     # Check if workflow is complete
                     if msg_type in ("complete", "error"):
-                        print(f"[WorkflowWS] Workflow finished: task={task_id[:8]}... type={msg_type}")
+                        print(
+                            f"[WorkflowWS] Workflow finished: task={task_id[:8]}... type={msg_type}"
+                        )
                         # Wait a bit before closing to ensure frontend processes the message
                         await asyncio.sleep(0.5)
                         await websocket.close()
@@ -136,11 +166,13 @@ async def workflow_websocket(websocket: WebSocket, task_id: str):
 
                 except asyncio.TimeoutError:
                     # Send heartbeat
-                    await websocket.send_json({
-                        "type": "heartbeat",
-                        "task_id": task_id,
-                        "timestamp": datetime.utcnow().isoformat(),
-                    })
+                    await websocket.send_json(
+                        {
+                            "type": "heartbeat",
+                            "task_id": task_id,
+                            "timestamp": datetime.utcnow().isoformat(),
+                        }
+                    )
 
     except WebSocketDisconnect:
         pass

@@ -39,7 +39,7 @@ export const useSessionStore = create<SessionState>()(
       conversationHistory: [],
       preferences: {
         llmProvider: 'google',
-        enableIndexing: true,
+        enableIndexing: false,
         theme: 'light',
       },
       recentProjects: [],

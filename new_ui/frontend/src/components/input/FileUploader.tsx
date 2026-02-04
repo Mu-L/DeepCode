@@ -8,12 +8,14 @@ interface FileUploaderProps {
   onFileUploaded: (fileId: string, path: string) => void;
   acceptedTypes?: string[];
   maxSize?: number; // in bytes
+  disabled?: boolean;
 }
 
 export default function FileUploader({
   onFileUploaded,
   acceptedTypes = ['.pdf', '.md', '.txt'],
   maxSize = 100 * 1024 * 1024, // 100MB
+  disabled = false,
 }: FileUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<{
@@ -146,11 +148,13 @@ export default function FileUploader({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
+            onDragOver={disabled ? undefined : handleDragOver}
+            onDragLeave={disabled ? undefined : handleDragLeave}
+            onDrop={disabled ? undefined : handleDrop}
             className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              isDragging
+              disabled
+                ? 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed'
+                : isDragging
                 ? 'border-primary-500 bg-primary-50'
                 : 'border-gray-300 hover:border-gray-400'
             }`}
@@ -159,8 +163,8 @@ export default function FileUploader({
               type="file"
               accept={acceptedTypes.join(',')}
               onChange={handleFileSelect}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              disabled={isUploading}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+              disabled={isUploading || disabled}
             />
 
             {isUploading ? (

@@ -40,7 +40,6 @@ async def get_settings():
 async def get_llm_providers():
     """Get available LLM providers and their configurations"""
     secrets = load_secrets()
-    config = load_mcp_config()
 
     # Get available providers (those with API keys configured)
     available_providers = []

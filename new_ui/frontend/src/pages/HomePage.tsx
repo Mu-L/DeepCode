@@ -5,45 +5,45 @@ import {
   MessageSquare,
   GitBranch,
   ArrowRight,
-  Sparkles,
-  Zap,
-  Brain,
-  Shield,
+  Rocket,
+  Palette,
+  Server,
+  Users,
 } from 'lucide-react';
 import { Card } from '../components/common';
 
 const features = [
   {
-    icon: Sparkles,
-    title: 'Neural Synthesis',
+    icon: Rocket,
+    title: 'Paper2Code',
     description:
-      'Transform research papers directly into executable repositories via multi-agent LLM pipelines.',
+      'Automated implementation of complex algorithms from research papers into high-quality, production-ready code.',
+    color: 'text-red-500',
+    bgColor: 'bg-red-50',
+  },
+  {
+    icon: Palette,
+    title: 'Text2Web',
+    description:
+      'Translates plain textual descriptions into fully functional, visually appealing front-end web code.',
+    color: 'text-teal-500',
+    bgColor: 'bg-teal-50',
+  },
+  {
+    icon: Server,
+    title: 'Text2Backend',
+    description:
+      'Generates efficient, scalable, and feature-rich back-end code from simple text inputs.',
     color: 'text-purple-500',
     bgColor: 'bg-purple-50',
   },
   {
-    icon: Zap,
-    title: 'Hyper-Speed Mode',
+    icon: Users,
+    title: 'User-in-Loop',
     description:
-      'Acceleration layer that parallelizes retrieval, planning, and implementation for fastest delivery.',
-    color: 'text-yellow-500',
-    bgColor: 'bg-yellow-50',
-  },
-  {
-    icon: Brain,
-    title: 'Cognitive Context',
-    description:
-      'Semantic memory graphs retain methodology, datasets, and evaluation strategy during reasoning.',
+      'Interactive collaboration with AI agents through real-time feedback and inline chat interaction.',
     color: 'text-blue-500',
     bgColor: 'bg-blue-50',
-  },
-  {
-    icon: Shield,
-    title: 'Secure Sandbox',
-    description:
-      'Isolated execution & validation environment keeps experiments safe and reproducible.',
-    color: 'text-green-500',
-    bgColor: 'bg-green-50',
   },
 ];
 

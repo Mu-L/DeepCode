@@ -104,9 +104,29 @@ export interface WSLogMessage {
   timestamp: string;
 }
 
+// User-in-Loop interaction message
+export interface WSInteractionMessage {
+  type: 'interaction_required';
+  task_id: string;
+  interaction_type: 'requirement_questions' | 'plan_review' | 'code_review' | string;
+  title: string;
+  description: string;
+  data: {
+    questions?: Question[];
+    plan?: string;
+    plan_preview?: string;
+    original_input?: string;
+    [key: string]: unknown;
+  };
+  options: Record<string, string>;
+  required: boolean;
+  timestamp: string;
+}
+
 export type WSMessage =
   | WSProgressMessage
   | WSCompleteMessage
   | WSErrorMessage
   | WSCodeChunkMessage
-  | WSLogMessage;
+  | WSLogMessage
+  | WSInteractionMessage;

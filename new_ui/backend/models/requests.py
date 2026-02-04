@@ -1,6 +1,6 @@
 """Request models for API endpoints"""
 
-from typing import Optional, Dict, Any, List
+from typing import Dict, Any
 from pydantic import BaseModel, Field
 
 
@@ -9,14 +9,14 @@ class PaperToCodeRequest(BaseModel):
 
     input_source: str = Field(..., description="Path to paper file or URL")
     input_type: str = Field(..., description="Type of input: file, url")
-    enable_indexing: bool = Field(default=True, description="Enable code indexing")
+    enable_indexing: bool = Field(default=False, description="Enable code indexing")
 
 
 class ChatPlanningRequest(BaseModel):
     """Request model for chat-based planning workflow"""
 
     requirements: str = Field(..., description="User requirements text")
-    enable_indexing: bool = Field(default=True, description="Enable code indexing")
+    enable_indexing: bool = Field(default=False, description="Enable code indexing")
 
 
 class GenerateQuestionsRequest(BaseModel):
@@ -44,7 +44,9 @@ class ModifyRequirementsRequest(BaseModel):
 class LLMProviderUpdateRequest(BaseModel):
     """Request model for updating LLM provider"""
 
-    provider: str = Field(..., description="LLM provider name: google, anthropic, openai")
+    provider: str = Field(
+        ..., description="LLM provider name: google, anthropic, openai"
+    )
 
 
 class FileUploadResponse(BaseModel):
@@ -54,3 +56,16 @@ class FileUploadResponse(BaseModel):
     filename: str
     path: str
     size: int
+
+
+class InteractionResponseRequest(BaseModel):
+    """Request model for responding to user-in-loop interactions"""
+
+    action: str = Field(
+        ..., description="User action: submit, confirm, modify, skip, cancel"
+    )
+    data: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Response data (e.g., answers to questions, modification feedback)",
+    )
+    skipped: bool = Field(default=False, description="Whether user chose to skip")
