@@ -1,6 +1,6 @@
 /**
  * Task Recovery Banner
- * 
+ *
  * Shows a notification when a running task is recovered after page refresh.
  */
 

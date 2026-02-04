@@ -1,8 +1,8 @@
 /**
  * Task Recovery Hook
- * 
+ *
  * Handles automatic recovery of running tasks after page refresh.
- * 
+ *
  * Flow:
  * 1. On mount, check if there's a persisted activeTaskId
  * 2. If yes, query the backend to verify task status
@@ -60,7 +60,7 @@ export function useTaskRecovery() {
       if (taskStatus.status === 'running') {
         // Task is still running - restore steps and let WebSocket reconnect
         console.log('[TaskRecovery] Task still running, reconnecting...');
-        
+
         // Restore steps based on workflow type
         if (workflowType === 'paper-to-code') {
           setSteps(PAPER_TO_CODE_STEPS);
@@ -82,7 +82,7 @@ export function useTaskRecovery() {
       } else if (taskStatus.status === 'completed') {
         // Task completed while we were away
         console.log('[TaskRecovery] Task completed, syncing final state...');
-        
+
         if (workflowType === 'paper-to-code') {
           setSteps(PAPER_TO_CODE_STEPS);
         } else if (workflowType === 'chat-planning') {
@@ -103,7 +103,7 @@ export function useTaskRecovery() {
       } else if (taskStatus.status === 'error') {
         // Task errored while we were away
         console.log('[TaskRecovery] Task errored, syncing error state...');
-        
+
         setStatus('error');
         setError(taskStatus.error || 'Unknown error');
         setNeedsRecovery(false);
@@ -128,7 +128,7 @@ export function useTaskRecovery() {
     } catch (error) {
       // Task not found or API error
       console.error('[TaskRecovery] Failed to recover task:', error);
-      
+
       // Always reset on any error - the task is no longer valid
       // This handles 404 (task not found) and any other API errors
       console.log('[TaskRecovery] Task not recoverable, clearing state...');

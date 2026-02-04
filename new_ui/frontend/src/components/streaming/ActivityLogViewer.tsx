@@ -1,16 +1,16 @@
 /**
  * Activity Log Viewer
- * 
+ *
  * Displays real-time activity logs from the backend workflow.
  * Shows progress messages, timestamps, and status icons.
  */
 
 import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Terminal, 
-  CheckCircle, 
-  Clock, 
+import {
+  Terminal,
+  CheckCircle,
+  Clock,
   Loader2,
   AlertCircle,
   Rocket,
@@ -38,7 +38,7 @@ interface ActivityLogViewerProps {
 // Map message content to appropriate icon
 function getIconForMessage(message: string): React.ReactNode {
   const msg = message.toLowerCase();
-  
+
   if (msg.includes('complete') || msg.includes('success') || msg.includes('✅')) {
     return <CheckCircle className="h-4 w-4 text-green-500" />;
   }
@@ -63,16 +63,16 @@ function getIconForMessage(message: string): React.ReactNode {
   if (msg.includes('process') || msg.includes('⚡') || msg.includes('running')) {
     return <Zap className="h-4 w-4 text-amber-500" />;
   }
-  
+
   return <Clock className="h-4 w-4 text-gray-400" />;
 }
 
 function formatTime(date: Date): string {
-  return date.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
-    minute: '2-digit', 
+  return date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
     second: '2-digit',
-    hour12: false 
+    hour12: false
   });
 }
 
@@ -110,14 +110,14 @@ export default function ActivityLogViewer({
             </motion.span>
           )}
         </div>
-        
+
         <div className="text-xs text-gray-500">
           {logs.length} events
         </div>
       </div>
 
       {/* Log Content */}
-      <div 
+      <div
         ref={scrollRef}
         className="h-[350px] overflow-y-auto p-4 font-mono text-sm"
       >
@@ -143,24 +143,24 @@ export default function ActivityLogViewer({
                 <span className="text-gray-500 text-xs whitespace-nowrap pt-0.5">
                   {formatTime(log.timestamp)}
                 </span>
-                
+
                 {/* Icon */}
                 <span className="flex-shrink-0 pt-0.5">
                   {getIconForMessage(log.message)}
                 </span>
-                
+
                 {/* Message */}
                 <span className="text-gray-300 flex-1 break-words">
                   {log.message}
                 </span>
-                
+
                 {/* Progress Badge */}
                 <span className="text-xs text-gray-500 whitespace-nowrap pt-0.5">
                   {log.progress}%
                 </span>
               </motion.div>
             ))}
-            
+
             {/* Current Activity Indicator */}
             {isRunning && currentMessage && (
               <motion.div

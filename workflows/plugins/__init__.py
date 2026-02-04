@@ -5,7 +5,7 @@ from .plan_review import PlanReviewPlugin
 
 __all__ = [
     "InteractionPlugin",
-    "InteractionPoint", 
+    "InteractionPoint",
     "PluginRegistry",
     "RequirementAnalysisPlugin",
     "PlanReviewPlugin",

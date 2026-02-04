@@ -30,48 +30,48 @@ class WorkflowService:
         self._subscribers = {}
         # 添加这一行
         self._plugin_integration = WorkflowPluginIntegration(self)
-    
+
     async def execute_chat_planning(self, task_id, requirements, enable_indexing=False):
         # ... 原有代码 ...
-        
+
         # ===== 添加插件支持 (仅需3行代码) =====
-        
+
         # 1. 创建上下文
         context = self._plugin_integration.create_context(
             task_id=task_id,
             user_input=requirements,
             enable_indexing=enable_indexing,
         )
-        
+
         # 2. 运行 BEFORE_PLANNING 插件 (需求分析)
         context = await self._plugin_integration.run_hook(
             InteractionPoint.BEFORE_PLANNING,
             context
         )
-        
+
         # 检查是否被取消
         if context.get("workflow_cancelled"):
             return {"status": "cancelled", "reason": context.get("cancel_reason")}
-        
+
         # 使用可能被增强的需求
         requirements = context.get("requirements", requirements)
-        
+
         # ===== 原有的计划生成代码 =====
         planning_result = await run_chat_planning_agent(requirements, logger)
-        
+
         # ===== 添加计划确认插件 =====
         context["planning_result"] = planning_result
         context = await self._plugin_integration.run_hook(
             InteractionPoint.AFTER_PLANNING,
             context
         )
-        
+
         if context.get("workflow_cancelled"):
             return {"status": "cancelled", "reason": context.get("cancel_reason")}
-        
+
         # 使用可能被修改的计划
         planning_result = context.get("planning_result", planning_result)
-        
+
         # ===== 继续原有的代码实现流程 =====
         ...
 ```
@@ -90,10 +90,10 @@ async def respond_to_interaction(task_id: str, response: InteractionResponseRequ
         data=response.data,
         skipped=response.skipped,
     )
-    
+
     if not success:
         raise HTTPException(status_code=404, detail="No pending interaction")
-    
+
     return {"status": "ok"}
 ```
 
@@ -126,7 +126,7 @@ registry = get_default_registry()
 # 禁用需求分析插件
 registry.disable("requirement_analysis")
 
-# 启用计划确认插件  
+# 启用计划确认插件
 registry.enable("plan_review")
 ```
 
@@ -140,10 +140,10 @@ class MyCustomPlugin(InteractionPlugin):
     description = "My custom interaction"
     hook_point = InteractionPoint.BEFORE_IMPLEMENTATION
     priority = 50
-    
+
     async def should_trigger(self, context):
         return context.get("enable_my_plugin", True)
-    
+
     async def create_interaction(self, context):
         return InteractionRequest(
             interaction_type="custom_interaction",
@@ -152,7 +152,7 @@ class MyCustomPlugin(InteractionPlugin):
             data={"key": "value"},
             options={"yes": "Confirm", "no": "Cancel"},
         )
-    
+
     async def process_response(self, response, context):
         if response.action == "yes":
             context["custom_confirmed"] = True

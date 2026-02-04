@@ -1,6 +1,6 @@
 /**
  * Confirm Dialog Component
- * 
+ *
  * A reusable confirmation dialog for destructive or important actions.
  */
 

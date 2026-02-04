@@ -1,6 +1,6 @@
 /**
  * Guarded Link Component
- * 
+ *
  * A Link component that respects the navigation guard.
  * Shows confirmation dialog when trying to navigate away during a running task.
  */
@@ -41,7 +41,7 @@ export function GuardedLink({ to, children, ...props }: GuardedLinkProps) {
       <Link to={to} onClick={handleClick} {...props}>
         {children}
       </Link>
-      
+
       <ConfirmDialog
         isOpen={showDialog}
         title="Task is still running"

@@ -1,6 +1,6 @@
 /**
  * InteractionPanel Component
- * 
+ *
  * Displays User-in-Loop interactions from the workflow.
  * Supports different interaction types:
  * - requirement_questions: Show questions and collect answers
@@ -9,10 +9,10 @@
 
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  MessageCircle, 
-  Send, 
-  SkipForward, 
+import {
+  MessageCircle,
+  Send,
+  SkipForward,
   CheckCircle,
   XCircle,
   Edit,
@@ -30,10 +30,10 @@ interface InteractionPanelProps {
   onComplete?: () => void;
 }
 
-export default function InteractionPanel({ 
-  taskId, 
-  interaction, 
-  onComplete 
+export default function InteractionPanel({
+  taskId,
+  interaction,
+  onComplete
 }: InteractionPanelProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -85,7 +85,7 @@ export default function InteractionPanel({
 
   const renderQuestions = () => {
     const questions = interaction.data.questions || [];
-    
+
     return (
       <div className="space-y-4">
         {questions.map((q, index) => (
@@ -191,7 +191,7 @@ export default function InteractionPanel({
             <XCircle className="h-4 w-4 mr-2" />
             Cancel
           </Button>
-          
+
           {!showModify ? (
             <Button
               variant="secondary"
@@ -217,7 +217,7 @@ export default function InteractionPanel({
               Submit Changes
             </Button>
           )}
-          
+
           <Button
             variant="primary"
             onClick={() => handleSubmit('confirm')}
@@ -239,7 +239,7 @@ export default function InteractionPanel({
     return (
       <div className="space-y-4">
         <p className="text-sm text-gray-600">{interaction.description}</p>
-        
+
         <div className="flex justify-end space-x-3 pt-4 border-t border-gray-100">
           {Object.entries(interaction.options).map(([action, label]) => (
             <Button

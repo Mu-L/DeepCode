@@ -1,15 +1,15 @@
 /**
  * InlineChatInteraction Component
- * 
+ *
  * Displays User-in-Loop interactions inline within the chat flow.
  * Designed to look like an AI assistant message with interactive elements.
  */
 
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Send, 
-  SkipForward, 
+import {
+  Send,
+  SkipForward,
   CheckCircle,
   XCircle,
   Edit,
@@ -28,10 +28,10 @@ interface InlineChatInteractionProps {
   onComplete?: () => void;
 }
 
-export default function InlineChatInteraction({ 
-  taskId, 
-  interaction, 
-  onComplete 
+export default function InlineChatInteraction({
+  taskId,
+  interaction,
+  onComplete
 }: InlineChatInteractionProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -72,7 +72,7 @@ export default function InlineChatInteraction({
   // Render questions type
   const renderQuestions = () => {
     const questions = interaction.data?.questions || [];
-    
+
     return (
       <div className="space-y-3">
         {questions.map((q: { id?: string; question: string; hint?: string; category?: string }, index: number) => (
@@ -187,7 +187,7 @@ export default function InlineChatInteraction({
             <XCircle className="h-3.5 w-3.5 mr-1.5" />
             Cancel
           </Button>
-          
+
           {!showModify ? (
             <Button
               variant="secondary"
@@ -215,7 +215,7 @@ export default function InlineChatInteraction({
               Submit Changes
             </Button>
           )}
-          
+
           <Button
             variant="primary"
             size="sm"
@@ -239,7 +239,7 @@ export default function InlineChatInteraction({
     return (
       <div className="space-y-3">
         <p className="text-sm text-gray-600">{interaction.description}</p>
-        
+
         <div className="flex flex-wrap justify-end gap-2 pt-3">
           {interaction.options && Object.entries(interaction.options).map(([action, label]) => (
             <Button
@@ -282,7 +282,7 @@ export default function InlineChatInteraction({
       <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
         <Bot className="h-4 w-4 text-primary-600" />
       </div>
-      
+
       {/* Interaction Content */}
       <div className="flex-1 max-w-[90%]">
         <div className="bg-gradient-to-br from-primary-50 to-blue-50 border border-primary-200 rounded-2xl px-4 py-3 shadow-sm">
@@ -293,7 +293,7 @@ export default function InlineChatInteraction({
               <p className="text-xs text-gray-600 mt-0.5">{interaction.description}</p>
             )}
           </div>
-          
+
           {/* Content */}
           {renderContent()}
         </div>

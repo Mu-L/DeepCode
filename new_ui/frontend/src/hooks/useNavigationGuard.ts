@@ -1,6 +1,6 @@
 /**
  * Navigation Guard Hook
- * 
+ *
  * Prevents accidental navigation away from a page when a task is running.
  * - Shows browser warning on refresh/close (beforeunload)
  * - Shows confirmation dialog on in-app navigation
