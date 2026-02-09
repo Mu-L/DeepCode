@@ -28,6 +28,9 @@ site/
 log/
 logs/
 
+# Node
+node_modules/
+
 # Caches
 .cache/
 .mypy_cache/

@@ -605,6 +605,9 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv venv --python=3.13
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 uv pip install -r requirements.txt
+
+# Install frontend dependencies
+npm install --prefix new_ui/frontend
 ```
 
 ##### 🐍 **Using Traditional pip**
@@ -614,6 +617,9 @@ git clone https://github.com/HKUDS/DeepCode.git
 cd DeepCode/
 
 pip install -r requirements.txt
+
+# Install frontend dependencies
+npm install --prefix new_ui/frontend
 ```
 
 </details>
@@ -868,6 +874,69 @@ python cli/main_cli.py
 2. **🤖 Processing**: Watch the multi-agent system analyze and plan
 3. **⚡ Output**: Receive production-ready code with tests and documentation
 
+---
+
+### 🔧 **Troubleshooting**
+
+<details>
+<summary><strong>❓ Common Issues & Solutions</strong></summary>
+
+#### 🐳 Docker build fails with `tsc: not found`
+
+```
+node_modules/.bin/tsc: line 1: ../typescript/bin/tsc: not found
+```
+
+**Cause**: Corrupted Docker build cache.
+
+**Fix**: Clear the cache and rebuild:
+```bash
+docker builder prune -f
+docker compose -f deepcode_docker/docker-compose.yml build --no-cache
+docker compose -f deepcode_docker/docker-compose.yml up -d
+```
+
+#### 🐳 Docker command returns `error during connect` / `cannot find the file specified`
+
+**Cause**: Docker Desktop is not running.
+
+**Fix**: Start **Docker Desktop** from the Start menu (Windows) or Applications (macOS), wait until it's fully ready, then retry.
+
+#### 🌐 Frontend displays abnormally or shows a blank page
+
+**Cause**: Corrupted `node_modules` — frontend dependencies are incomplete.
+
+**Fix**: Reinstall frontend dependencies:
+```bash
+cd new_ui/frontend
+rm -rf node_modules
+npm install
+```
+
+Then rebuild (for Docker) or restart (for local mode).
+
+#### 🌐 Browser shows `ERR_CONNECTION_REFUSED` or JSON response instead of UI
+
+**Cause**: Accessing the wrong port or backend not running.
+
+**Fix**:
+- **Docker mode** (`deepcode`): Access **http://localhost:8000**. Make sure the container is running: `docker ps`
+- **Local mode** (`deepcode --local`): Access **http://localhost:5173** (not 8000). Port 5173 is the frontend dev server.
+
+#### 📦 `npm install` fails with `Could not read package.json`
+
+**Cause**: Running `npm install` in the project root instead of the frontend directory.
+
+**Fix**: Run it in the correct directory:
+```bash
+npm install --prefix new_ui/frontend
+```
+
+#### 🪟 Windows: MCP servers not working
+
+See the [Windows MCP Server Configuration](#-step-2-configuration) section above for setting up absolute paths.
+
+</details>
 
   ---
 

@@ -602,6 +602,9 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv venv --python=3.13
 source .venv/bin/activate  # Windows下: .venv\Scripts\activate
 uv pip install -r requirements.txt
+
+# 安装前端依赖
+npm install --prefix new_ui/frontend
 ```
 
 ##### 🐍 **使用传统 pip**
@@ -611,6 +614,9 @@ git clone https://github.com/HKUDS/DeepCode.git
 cd DeepCode/
 
 pip install -r requirements.txt
+
+# 安装前端依赖
+npm install --prefix new_ui/frontend
 ```
 
 </details>
@@ -865,6 +871,69 @@ python cli/main_cli.py
 2. **🤖 处理**: 观看多智能体系统分析和规划
 3. **⚡ 输出**: 接收带有测试和文档的生产就绪代码
 
+---
+
+### 🔧 **常见问题排查**
+
+<details>
+<summary><strong>❓ 常见问题与解决方案</strong></summary>
+
+#### 🐳 Docker 构建失败，提示 `tsc: not found`
+
+```
+node_modules/.bin/tsc: line 1: ../typescript/bin/tsc: not found
+```
+
+**原因**：Docker 构建缓存损坏。
+
+**解决**：清除缓存并重新构建：
+```bash
+docker builder prune -f
+docker compose -f deepcode_docker/docker-compose.yml build --no-cache
+docker compose -f deepcode_docker/docker-compose.yml up -d
+```
+
+#### 🐳 Docker 命令报错 `error during connect` / `cannot find the file specified`
+
+**原因**：Docker Desktop 未启动。
+
+**解决**：从开始菜单启动 **Docker Desktop**，等待完全就绪后再重试。
+
+#### 🌐 前端页面显示异常或空白
+
+**原因**：`node_modules` 损坏，前端依赖不完整。
+
+**解决**：重新安装前端依赖：
+```bash
+cd new_ui/frontend
+rm -rf node_modules
+npm install
+```
+
+然后重新构建（Docker 模式）或重启（本地模式）。
+
+#### 🌐 浏览器显示 `ERR_CONNECTION_REFUSED` 或 JSON 而非界面
+
+**原因**：访问了错误的端口，或后端未运行。
+
+**解决**：
+- **Docker 模式**（`deepcode`）：访问 **http://localhost:8000**，确认容器正在运行：`docker ps`
+- **本地模式**（`deepcode --local`）：访问 **http://localhost:5173**（不是 8000），5173 是前端开发服务器端口
+
+#### 📦 `npm install` 报错 `Could not read package.json`
+
+**原因**：在项目根目录运行了 `npm install`，而非前端目录。
+
+**解决**：在正确的目录下运行：
+```bash
+npm install --prefix new_ui/frontend
+```
+
+#### 🪟 Windows：MCP 服务器无法工作
+
+请参考上方 [步骤2: 配置](#-步骤2-配置) 中的 Windows MCP 服务器配置说明，设置绝对路径。
+
+</details>
 
   ---
 
