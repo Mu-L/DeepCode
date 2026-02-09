@@ -577,6 +577,8 @@ sudo apt-get install -y nodejs
 
 ### 📦 **Step 1: Installation**
 
+Choose one of the following installation methods:
+
 #### ⚡ **Direct Installation (Recommended)**
 
 ```bash
@@ -586,29 +588,6 @@ pip install deepcode-hku
 # 🔑 Download configuration files
 curl -O https://raw.githubusercontent.com/HKUDS/DeepCode/main/mcp_agent.config.yaml
 curl -O https://raw.githubusercontent.com/HKUDS/DeepCode/main/mcp_agent.secrets.yaml
-
-# 🔑 Configure API keys (required)
-# Edit mcp_agent.secrets.yaml with your API keys and base_url:
-# - openai: api_key, base_url (for OpenAI/custom endpoints)
-# - anthropic: api_key (for Claude models)
-# - google: api_key (for Gemini models)
-
-# 🤖 Select your preferred LLM provider (optional)
-# Edit mcp_agent.config.yaml to choose your LLM (line ~106):
-# - llm_provider: "google"    # Use Google Gemini models
-# - llm_provider: "anthropic" # Use Anthropic Claude models
-# - llm_provider: "openai"    # Use OpenAI/compatible models
-# Note: If not set or unavailable, will automatically fallback to first available provider
-
-# 🔑 Configure search API keys for web search (optional)
-# Edit mcp_agent.config.yaml to set your API keys:
-# - For Brave Search: Set BRAVE_API_KEY: "your_key_here" in brave.env section (line ~28)
-# - For Bocha-MCP: Set BOCHA_API_KEY: "your_key_here" in bocha-mcp.env section (line ~74)
-
-# 📄 Configure document segmentation (optional)
-# Edit mcp_agent.config.yaml to control document processing:
-# - enabled: true/false (whether to use intelligent document segmentation)
-# - size_threshold_chars: 50000 (document size threshold to trigger segmentation)
 ```
 
 #### 🔧 **Development Installation (From Source)**
@@ -619,79 +598,85 @@ curl -O https://raw.githubusercontent.com/HKUDS/DeepCode/main/mcp_agent.secrets.
 ##### 🔥 **Using UV (Recommended for Development)**
 
 ```bash
-# 🔽 Clone the repository
 git clone https://github.com/HKUDS/DeepCode.git
 cd DeepCode/
 
-# 📦 Install UV package manager
 curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# 🔧 Install dependencies with UV
 uv venv --python=3.13
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 uv pip install -r requirements.txt
-
-# 🔑 Configure API keys (required)
-# Edit mcp_agent.secrets.yaml with your API keys and base_url:
-# - openai: api_key, base_url (for OpenAI/custom endpoints)
-# - anthropic: api_key (for Claude models)
-# - google: api_key (for Gemini models)
-
-# 🤖 Select your preferred LLM provider (optional)
-# Edit mcp_agent.config.yaml to choose your LLM (line ~106):
-# - llm_provider: "google"    # Use Google Gemini models
-# - llm_provider: "anthropic" # Use Anthropic Claude models
-# - llm_provider: "openai"    # Use OpenAI/compatible models
-# Note: If not set or unavailable, will automatically fallback to first available provider
-
-# 🔑 Configure search API keys for web search (optional)
-# Edit mcp_agent.config.yaml to set your API keys:
-# - For Brave Search: Set BRAVE_API_KEY: "your_key_here" in brave.env section (line ~28)
-# - For Bocha-MCP: Set BOCHA_API_KEY: "your_key_here" in bocha-mcp.env section (line ~74)
-
-# 📄 Configure document segmentation (optional)
-# Edit mcp_agent.config.yaml to control document processing:
-# - enabled: true/false (whether to use intelligent document segmentation)
-# - size_threshold_chars: 50000 (document size threshold to trigger segmentation)
 ```
 
 ##### 🐍 **Using Traditional pip**
 
 ```bash
-# 🔽 Clone the repository
 git clone https://github.com/HKUDS/DeepCode.git
 cd DeepCode/
 
-# 📦 Install dependencies
 pip install -r requirements.txt
-
-# 🔑 Configure API keys (required)
-# Edit mcp_agent.secrets.yaml with your API keys and base_url:
-# - openai: api_key, base_url (for OpenAI/custom endpoints)
-# - anthropic: api_key (for Claude models)
-# - google: api_key (for Gemini models)
-
-# 🤖 Select your preferred LLM provider (optional)
-# Edit mcp_agent.config.yaml to choose your LLM (line ~106):
-# - llm_provider: "google"    # Use Google Gemini models
-# - llm_provider: "anthropic" # Use Anthropic Claude models
-# - llm_provider: "openai"    # Use OpenAI/compatible models
-# Note: If not set or unavailable, will automatically fallback to first available provider
-
-# 🔑 Configure search API keys for web search (optional)
-# Edit mcp_agent.config.yaml to set your API keys:
-# - For Brave Search: Set BRAVE_API_KEY: "your_key_here" in brave.env section (line ~28)
-# - For Bocha-MCP: Set BOCHA_API_KEY: "your_key_here" in bocha-mcp.env section (line ~74)
-
-# 📄 Configure document segmentation (optional)
-# Edit mcp_agent.config.yaml to control document processing:
-# - enabled: true/false (whether to use intelligent document segmentation)
-# - size_threshold_chars: 50000 (document size threshold to trigger segmentation)
 ```
 
 </details>
 
-#### 🪟 **Windows Users: Additional MCP Server Configuration**
+### 🔧 **Step 2: Configuration**
+
+> The following configuration applies to **all installation methods** (pip, UV, source, and Docker).
+
+#### 🔑 API Keys *(required)*
+
+Edit `mcp_agent.secrets.yaml` with your API keys:
+
+```yaml
+# At least ONE provider API key is required
+openai:
+  api_key: "your_openai_api_key"
+  base_url: "https://openrouter.ai/api/v1"  # Optional: for OpenRouter or custom endpoints
+
+anthropic:
+  api_key: "your_anthropic_api_key"  # For Claude models
+
+google:
+  api_key: "your_google_api_key"     # For Gemini models
+```
+
+#### 🤖 LLM Provider *(optional)*
+
+Edit `mcp_agent.config.yaml` to choose your preferred LLM provider (line ~106):
+
+```yaml
+# Options: "google", "anthropic", "openai"
+# If not set or unavailable, will automatically fallback to first available provider
+llm_provider: "google"
+```
+
+#### 🔍 Search API Keys *(optional)*
+
+Configure web search in `mcp_agent.config.yaml`:
+
+```yaml
+# For Brave Search (default) — set in brave.env section (line ~28)
+brave:
+  env:
+    BRAVE_API_KEY: "your_brave_api_key_here"
+
+# For Bocha-MCP (alternative) — set in bocha-mcp.env section (line ~74)
+bocha-mcp:
+  env:
+    BOCHA_API_KEY: "your_bocha_api_key_here"
+```
+
+#### 📄 Document Segmentation *(optional)*
+
+Control document processing in `mcp_agent.config.yaml`:
+
+```yaml
+document_segmentation:
+  enabled: true          # true/false — whether to use intelligent document segmentation
+  size_threshold_chars: 50000  # Document size threshold to trigger segmentation
+```
+
+<details>
+<summary><strong>🪟 Windows Users: Additional MCP Server Configuration</strong></summary>
 
 If you're using Windows, you may need to configure MCP servers manually in `mcp_agent.config.yaml`:
 
@@ -719,7 +704,10 @@ mcp:
 
 > **Note**: Replace the path with your actual global node_modules path from step 2.
 
-#### 🔍 **Search Server Configuration (Optional)**
+</details>
+
+<details>
+<summary><strong>🔍 Search Server Configuration (Optional)</strong></summary>
 
 DeepCode supports multiple search servers for web search functionality. You can configure your preferred option in `mcp_agent.config.yaml`:
 
@@ -730,17 +718,10 @@ default_search_server: "brave"
 ```
 
 **Available Options:**
-- **🔍 Brave Search** (`"brave"`):
-  - Default option with high-quality search results
-  - Requires BRAVE_API_KEY configuration
-  - Recommended for most users
+- **🔍 Brave Search** (`"brave"`): Default option with high-quality search results. Requires `BRAVE_API_KEY`. Recommended for most users.
+- **🌐 Bocha-MCP** (`"bocha-mcp"`): Alternative search server. Requires `BOCHA_API_KEY`. Uses local Python server implementation.
 
-- **🌐 Bocha-MCP** (`"bocha-mcp"`):
-  - Alternative search server option
-  - Requires BOCHA_API_KEY configuration
-  - Uses local Python server implementation
-
-**API Key Configuration in mcp_agent.config.yaml:**
+**Full MCP server configuration in mcp_agent.config.yaml:**
 ```yaml
 # For Brave Search (default) - around line 28
 brave:
@@ -760,9 +741,54 @@ bocha-mcp:
 
 > **💡 Tip**: Both search servers require API key configuration. Choose the one that best fits your API access and requirements.
 
-### ⚡ **Step 2: Launch Application**
+</details>
 
-#### 🚀 **Using `deepcode` Command (Recommended)**
+### ⚡ **Step 3: Launch Application**
+
+#### 🐳 **Docker** (Recommended — Easiest Setup)
+
+No need to install Python, Node.js, or any dependencies — everything runs inside the container.
+
+**Prerequisites:** Install [Docker Desktop](https://www.docker.com/products/docker-desktop) (includes Docker Engine + Docker Compose).
+
+```bash
+# 1. Clone the repository (if not already done)
+git clone https://github.com/HKUDS/DeepCode.git
+cd DeepCode/
+
+# 2. Configure your API keys (see Step 2: Configuration above)
+cp mcp_agent.secrets.yaml.example mcp_agent.secrets.yaml
+# Edit mcp_agent.secrets.yaml with your API keys
+
+# 3. Start with one command
+./deepcode_docker/run_docker.sh        # Build & start (auto-builds on first run)
+
+# Access at http://localhost:8000
+```
+
+**Management Commands:**
+```bash
+./deepcode_docker/run_docker.sh stop         # Stop the service
+./deepcode_docker/run_docker.sh restart      # Restart (after config changes, no rebuild needed)
+./deepcode_docker/run_docker.sh --build      # Rebuild (after code changes)
+./deepcode_docker/run_docker.sh logs         # View real-time logs
+./deepcode_docker/run_docker.sh status       # Check service status
+./deepcode_docker/run_docker.sh clean        # Remove containers and images
+```
+
+Or use Docker Compose directly:
+```bash
+docker compose -f deepcode_docker/docker-compose.yml up --build   # Build and start
+docker compose -f deepcode_docker/docker-compose.yml up -d        # Start in background
+docker compose -f deepcode_docker/docker-compose.yml down         # Stop
+docker compose -f deepcode_docker/docker-compose.yml logs -f      # View logs
+```
+
+> **💡 Config changes don't need rebuild**: `mcp_agent.config.yaml` and `mcp_agent.secrets.yaml` are mounted as volumes — just edit them and run `./deepcode_docker/run_docker.sh restart`.
+>
+> **💡 Windows users**: Run `docker compose -f deepcode_docker/docker-compose.yml up --build` directly if the shell script is not available.
+
+#### 🚀 **Using `deepcode` Command** (Local Installation)
 
 ```bash
 # 🌐 Launch the new React-based web interface
@@ -824,16 +850,19 @@ deepcode --classic
 
 ##### 🖥️ **CLI Interface** (Advanced Users)
 ```bash
-# Using UV
-uv run python cli/main_cli.py
-# Or using traditional Python
+# CLI via Docker (no local Python needed)
+./deepcode_docker/run_docker.sh cli
+
+# Or: deepcode --cli
+
+# CLI locally (requires Python environment)
 python cli/main_cli.py
 ```
 <div align="center">
   <img src="https://img.shields.io/badge/Mode-Interactive_Terminal-9b59b6?style=flat-square&logo=terminal&logoColor=white" alt="CLI Mode" />
 </div>
 
-### 🎯 **Step 3: Generate Code**
+### 🎯 **Step 4: Generate Code**
 
 1. **📄 Input**: Upload your research paper, provide requirements, or paste a URL
 2. **🤖 Processing**: Watch the multi-agent system analyze and plan

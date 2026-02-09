@@ -3,9 +3,6 @@ import { persist } from 'zustand/middleware';
 import type {
   WorkflowStatus,
   WorkflowStep,
-  WorkflowTask,
-  PAPER_TO_CODE_STEPS,
-  CHAT_PLANNING_STEPS,
 } from '../types/workflow';
 
 // Activity log entry type

@@ -30,12 +30,12 @@ export default function FileTree({ files, onFileSelect, selectedFile }: FileTree
           current[part] = {
             name: part,
             type: isFile ? 'file' : 'folder',
-            children: isFile ? undefined : {},
+            children: isFile ? undefined : ({} as unknown as FileNode[]),
           };
         }
 
         if (!isFile) {
-          current = current[part].children as Record<string, FileNode>;
+          current = current[part].children as unknown as Record<string, FileNode>;
         }
       });
     });

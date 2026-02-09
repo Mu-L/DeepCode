@@ -1,0 +1,21 @@
+services:
+  deepcode:
+    build:
+      context: ..
+      dockerfile: deepcode_docker/Dockerfile
+    container_name: deepcode
+    ports:
+      - "8000:8000"
+    volumes:
+      # Configuration (required)
+      - ../mcp_agent.config.yaml:/app/mcp_agent.config.yaml:ro
+      - ../mcp_agent.secrets.yaml:/app/mcp_agent.secrets.yaml:ro
+
+      # Persistent data
+      - ../deepcode_lab:/app/deepcode_lab
+      - ../uploads:/app/uploads
+      - ../logs:/app/logs
+    environment:
+      - DEEPCODE_ENV=docker
+      - DEEPCODE_PORT=8000
+    restart: unless-stopped

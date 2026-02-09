@@ -145,7 +145,7 @@ export function useTaskRecovery() {
   // Run recovery on mount
   useEffect(() => {
     // Only run once on initial mount if there's a persisted running task
-    if (activeTaskId && (status === 'running' || status === 'pending')) {
+    if (activeTaskId && (status === 'running' || (status as string) === 'pending')) {
       setNeedsRecovery(true);
       recoverTask();
     }

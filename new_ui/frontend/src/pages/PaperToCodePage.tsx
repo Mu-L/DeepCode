@@ -247,14 +247,14 @@ export default function PaperToCodePage() {
                     <p className="text-sm text-green-700 mt-1">
                       Your code has been successfully generated from the paper.
                     </p>
-                    {result.repo_result && typeof result.repo_result === 'object' && 'code_directory' in (result.repo_result as Record<string, unknown>) && (
+                    {result.repo_result && typeof result.repo_result === 'object' && 'code_directory' in (result.repo_result as Record<string, unknown>) ? (
                       <div className="mt-3 flex items-center text-sm text-green-600">
                         <FolderOpen className="h-4 w-4 mr-2" />
                         <span className="font-mono text-xs">
-                          {(result.repo_result as Record<string, unknown>).code_directory as string}
+                          {String((result.repo_result as Record<string, unknown>).code_directory)}
                         </span>
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </Card>

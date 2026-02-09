@@ -574,38 +574,17 @@ sudo apt-get install -y nodejs
 
 ### 📦 **步骤1: 安装**
 
+选择以下任一安装方式：
+
 #### ⚡ **直接安装 (推荐)**
 
 ```bash
-# 🚀 直接安装DeepCode包
+# 🚀 直接安装 DeepCode 包
 pip install deepcode-hku
 
 # 🔑 下载配置文件
 curl -O https://raw.githubusercontent.com/HKUDS/DeepCode/main/mcp_agent.config.yaml
 curl -O https://raw.githubusercontent.com/HKUDS/DeepCode/main/mcp_agent.secrets.yaml
-
-# 🔑 配置API密钥 (必需)
-# 使用您的API密钥和base_url编辑mcp_agent.secrets.yaml:
-# - openai: api_key, base_url (用于OpenAI/自定义端点)
-# - anthropic: api_key (用于Claude模型)
-# - google: api_key (用于Gemini模型)
-
-# 🤖 选择您偏好的LLM提供商 (可选)
-# 编辑mcp_agent.config.yaml选择您的LLM (第~106行):
-# - llm_provider: "google"    # 使用Google Gemini模型
-# - llm_provider: "anthropic" # 使用Anthropic Claude模型
-# - llm_provider: "openai"    # 使用OpenAI/兼容模型
-# 注意: 如果未设置或不可用，将自动回退到第一个可用的提供商
-
-# 🔑 配置搜索API密钥用于Web搜索 (可选)
-# 编辑mcp_agent.config.yaml设置您的API密钥:
-# - 对于Brave搜索: 在brave.env部分设置BRAVE_API_KEY: "your_key_here" (第~28行)
-# - 对于Bocha-MCP: 在bocha-mcp.env部分设置BOCHA_API_KEY: "your_key_here" (第~74行)
-
-# 📄 配置文档分割 (可选)
-# 编辑mcp_agent.config.yaml控制文档处理:
-# - enabled: true/false (是否使用智能文档分割)
-# - size_threshold_chars: 50000 (触发分割的文档大小阈值)
 ```
 
 #### 🔧 **开发安装 (从源码)**
@@ -613,95 +592,101 @@ curl -O https://raw.githubusercontent.com/HKUDS/DeepCode/main/mcp_agent.secrets.
 <details>
 <summary><strong>📂 点击展开开发安装选项</strong></summary>
 
-##### 🔥 **使用UV (开发推荐)**
+##### 🔥 **使用 UV (开发推荐)**
 
 ```bash
-# 🔽 克隆存储库
 git clone https://github.com/HKUDS/DeepCode.git
 cd DeepCode/
 
-# 📦 安装UV包管理器
 curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# 🔧 使用UV安装依赖
 uv venv --python=3.13
 source .venv/bin/activate  # Windows下: .venv\Scripts\activate
 uv pip install -r requirements.txt
-
-# 🔑 配置API密钥 (必需)
-# 使用您的API密钥和base_url编辑mcp_agent.secrets.yaml:
-# - openai: api_key, base_url (用于OpenAI/自定义端点)
-# - anthropic: api_key (用于Claude模型)
-# - google: api_key (用于Gemini模型)
-
-# 🤖 选择您偏好的LLM提供商 (可选)
-# 编辑mcp_agent.config.yaml选择您的LLM (第~106行):
-# - llm_provider: "google"    # 使用Google Gemini模型
-# - llm_provider: "anthropic" # 使用Anthropic Claude模型
-# - llm_provider: "openai"    # 使用OpenAI/兼容模型
-# 注意: 如果未设置或不可用，将自动回退到第一个可用的提供商
-
-# 🔑 配置搜索API密钥用于Web搜索 (可选)
-# 编辑mcp_agent.config.yaml设置您的API密钥:
-# - 对于Brave搜索: 在brave.env部分设置BRAVE_API_KEY: "your_key_here" (第~28行)
-# - 对于Bocha-MCP: 在bocha-mcp.env部分设置BOCHA_API_KEY: "your_key_here" (第~74行)
-
-# 📄 配置文档分割 (可选)
-# 编辑mcp_agent.config.yaml控制文档处理:
-# - enabled: true/false (是否使用智能文档分割)
-# - size_threshold_chars: 50000 (触发分割的文档大小阈值)
 ```
 
-##### 🐍 **使用传统pip**
+##### 🐍 **使用传统 pip**
 
 ```bash
-# 🔽 克隆存储库
 git clone https://github.com/HKUDS/DeepCode.git
 cd DeepCode/
 
-# 📦 安装依赖
 pip install -r requirements.txt
-
-# 🔑 配置API密钥 (必需)
-# 使用您的API密钥和base_url编辑mcp_agent.secrets.yaml:
-# - openai: api_key, base_url (用于OpenAI/自定义端点)
-# - anthropic: api_key (用于Claude模型)
-# - google: api_key (用于Gemini模型)
-
-# 🤖 选择您偏好的LLM提供商 (可选)
-# 编辑mcp_agent.config.yaml选择您的LLM (第~106行):
-# - llm_provider: "google"    # 使用Google Gemini模型
-# - llm_provider: "anthropic" # 使用Anthropic Claude模型
-# - llm_provider: "openai"    # 使用OpenAI/兼容模型
-# 注意: 如果未设置或不可用，将自动回退到第一个可用的提供商
-
-# 🔑 配置搜索API密钥用于Web搜索 (可选)
-# 编辑mcp_agent.config.yaml设置您的API密钥:
-# - 对于Brave搜索: 在brave.env部分设置BRAVE_API_KEY: "your_key_here" (第~28行)
-# - 对于Bocha-MCP: 在bocha-mcp.env部分设置BOCHA_API_KEY: "your_key_here" (第~74行)
-
-# 📄 配置文档分割 (可选)
-# 编辑mcp_agent.config.yaml控制文档处理:
-# - enabled: true/false (是否使用智能文档分割)
-# - size_threshold_chars: 50000 (触发分割的文档大小阈值)
 ```
 
 </details>
 
-#### 🪟 **Windows用户: 额外的MCP服务器配置**
+### 🔧 **步骤2: 配置**
 
-如果您使用Windows，可能需要在`mcp_agent.config.yaml`中手动配置MCP服务器:
+> 以下配置适用于**所有安装方式**（pip、UV、源码安装和 Docker 均通用）。
+
+#### 🔑 API 密钥 *（必需）*
+
+编辑 `mcp_agent.secrets.yaml`，填入你的 API 密钥：
+
+```yaml
+# 至少需要配置一个 LLM 提供商的 API Key
+openai:
+  api_key: "your_openai_api_key"
+  base_url: "https://openrouter.ai/api/v1"  # 可选: 用于 OpenRouter 或自定义端点
+
+anthropic:
+  api_key: "your_anthropic_api_key"  # 用于 Claude 模型
+
+google:
+  api_key: "your_google_api_key"     # 用于 Gemini 模型
+```
+
+#### 🤖 LLM 提供商 *（可选）*
+
+编辑 `mcp_agent.config.yaml` 选择你偏好的 LLM 提供商（第 ~106 行）：
+
+```yaml
+# 选项: "google", "anthropic", "openai"
+# 如果未设置或不可用，将自动回退到第一个可用的提供商
+llm_provider: "google"
+```
+
+#### 🔍 搜索 API 密钥 *（可选）*
+
+在 `mcp_agent.config.yaml` 中配置 Web 搜索：
+
+```yaml
+# Brave 搜索 (默认) — 在 brave.env 部分设置 (第 ~28 行)
+brave:
+  env:
+    BRAVE_API_KEY: "your_brave_api_key_here"
+
+# Bocha-MCP (替代) — 在 bocha-mcp.env 部分设置 (第 ~74 行)
+bocha-mcp:
+  env:
+    BOCHA_API_KEY: "your_bocha_api_key_here"
+```
+
+#### 📄 文档分割 *（可选）*
+
+在 `mcp_agent.config.yaml` 中控制文档处理：
+
+```yaml
+document_segmentation:
+  enabled: true          # true/false — 是否使用智能文档分割
+  size_threshold_chars: 50000  # 触发分割的文档大小阈值
+```
+
+<details>
+<summary><strong>🪟 Windows 用户: 额外的 MCP 服务器配置</strong></summary>
+
+如果您使用 Windows，可能需要在 `mcp_agent.config.yaml` 中手动配置 MCP 服务器:
 
 ```bash
-# 1. 全局安装MCP服务器
+# 1. 全局安装 MCP 服务器
 npm i -g @modelcontextprotocol/server-brave-search
 npm i -g @modelcontextprotocol/server-filesystem
 
-# 2. 找到您的全局node_modules路径
+# 2. 找到您的全局 node_modules 路径
 npm -g root
 ```
 
-然后更新您的`mcp_agent.config.yaml`使用绝对路径:
+然后更新您的 `mcp_agent.config.yaml` 使用绝对路径:
 
 ```yaml
 mcp:
@@ -714,11 +699,14 @@ mcp:
       args: ["C:/Program Files/nodejs/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js", "."]
 ```
 
-> **注意**: 将路径替换为步骤2中您实际的全局node_modules路径。
+> **注意**: 将路径替换为步骤 2 中您实际的全局 node_modules 路径。
 
-#### 🔍 **搜索服务器配置 (可选)**
+</details>
 
-DeepCode支持多个搜索服务器进行Web搜索功能。您可以在`mcp_agent.config.yaml`中配置您的首选选项:
+<details>
+<summary><strong>🔍 搜索服务器配置（可选）</strong></summary>
+
+DeepCode 支持多个搜索服务器进行 Web 搜索功能。您可以在 `mcp_agent.config.yaml` 中配置首选选项:
 
 ```yaml
 # 默认搜索服务器配置
@@ -727,26 +715,19 @@ default_search_server: "brave"
 ```
 
 **可用选项:**
-- **🔍 Brave搜索** (`"brave"`):
-  - 具有高质量搜索结果的默认选项
-  - 需要BRAVE_API_KEY配置
-  - 推荐给大多数用户
+- **🔍 Brave 搜索** (`"brave"`): 具有高质量搜索结果的默认选项。需要 `BRAVE_API_KEY`。推荐给大多数用户。
+- **🌐 Bocha-MCP** (`"bocha-mcp"`): 替代搜索服务器。需要 `BOCHA_API_KEY`。使用本地 Python 服务器实现。
 
-- **🌐 Bocha-MCP** (`"bocha-mcp"`):
-  - 替代搜索服务器选项
-  - 需要BOCHA_API_KEY配置
-  - 使用本地Python服务器实现
-
-**在mcp_agent.config.yaml中的API密钥配置:**
+**完整 MCP 服务器配置（mcp_agent.config.yaml）:**
 ```yaml
-# 对于Brave搜索 (默认) - 第28行左右
+# Brave 搜索 (默认) - 第 28 行左右
 brave:
   command: "npx"
   args: ["-y", "@modelcontextprotocol/server-brave-search"]
   env:
     BRAVE_API_KEY: "your_brave_api_key_here"
 
-# 对于Bocha-MCP (替代) - 第74行左右
+# Bocha-MCP (替代) - 第 74 行左右
 bocha-mcp:
   command: "python"
   args: ["tools/bocha_search_server.py"]
@@ -755,11 +736,56 @@ bocha-mcp:
     BOCHA_API_KEY: "your_bocha_api_key_here"
 ```
 
-> **💡 提示**: 两个搜索服务器都需要API密钥配置。选择最适合您的API访问和需求的选项。
+> **💡 提示**: 两个搜索服务器都需要 API 密钥配置。选择最适合您的 API 访问和需求的选项。
 
-### ⚡ **步骤2: 启动应用程序**
+</details>
 
-#### 🚀 **使用 `deepcode` 命令 (推荐)**
+### ⚡ **步骤3: 启动应用程序**
+
+#### 🐳 **Docker** (推荐 — 最简单的方式)
+
+无需安装 Python、Node.js 或任何依赖 — 一切都在容器内运行。
+
+**前提条件:** 安装 [Docker Desktop](https://www.docker.com/products/docker-desktop)（包含 Docker Engine + Docker Compose）。
+
+```bash
+# 1. 克隆项目（如果还没有）
+git clone https://github.com/HKUDS/DeepCode.git
+cd DeepCode/
+
+# 2. 配置 API 密钥（详见上方步骤 2: 配置）
+cp mcp_agent.secrets.yaml.example mcp_agent.secrets.yaml
+# 编辑 mcp_agent.secrets.yaml 填入你的 API Key
+
+# 3. 一键启动
+./deepcode_docker/run_docker.sh        # 构建并启动（首次运行自动构建）
+
+# 访问 http://localhost:8000
+```
+
+**管理命令:**
+```bash
+./deepcode_docker/run_docker.sh stop         # 停止服务
+./deepcode_docker/run_docker.sh restart      # 重启（修改配置后使用，无需重建）
+./deepcode_docker/run_docker.sh --build      # 重新构建（修改代码后使用）
+./deepcode_docker/run_docker.sh logs         # 查看实时日志
+./deepcode_docker/run_docker.sh status       # 查看服务状态
+./deepcode_docker/run_docker.sh clean        # 删除容器和镜像
+```
+
+或直接使用 Docker Compose:
+```bash
+docker compose -f deepcode_docker/docker-compose.yml up --build   # 构建并启动
+docker compose -f deepcode_docker/docker-compose.yml up -d        # 后台启动
+docker compose -f deepcode_docker/docker-compose.yml down         # 停止
+docker compose -f deepcode_docker/docker-compose.yml logs -f      # 查看日志
+```
+
+> **💡 修改配置无需重建**: `mcp_agent.config.yaml` 和 `mcp_agent.secrets.yaml` 以卷挂载方式映射 — 编辑后执行 `./deepcode_docker/run_docker.sh restart` 即可。
+>
+> **💡 Windows 用户**: 如果 Shell 不支持脚本，可直接使用 `docker compose -f deepcode_docker/docker-compose.yml up --build`。
+
+#### 🚀 **使用 `deepcode` 命令**（本地安装）
 
 ```bash
 # 🌐 启动新版 React 界面
@@ -821,16 +847,19 @@ deepcode --classic
 
 ##### 🖥️ **CLI界面** (高级用户)
 ```bash
-# 使用UV
-uv run python cli/main_cli.py
-# 或使用传统Python
+# 通过 Docker 运行 CLI（无需本地 Python 环境）
+./deepcode_docker/run_docker.sh cli
+
+# 或: deepcode --cli
+
+# 本地运行 CLI（需要 Python 环境）
 python cli/main_cli.py
 ```
 <div align="center">
   <img src="https://img.shields.io/badge/模式-交互式终端-9b59b6?style=flat-square&logo=terminal&logoColor=white" alt="CLI Mode" />
 </div>
 
-### 🎯 **步骤3: 生成代码**
+### 🎯 **步骤4: 生成代码**
 
 1. **📄 输入**: 上传您的研究论文，提供需求，或粘贴URL
 2. **🤖 处理**: 观看多智能体系统分析和规划

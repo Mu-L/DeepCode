@@ -1443,8 +1443,10 @@ async def main():
         # Ask if user wants to continue with actual workflow
         print("\nContinuing with workflow execution...")
 
-        plan_file = "/Users/lizongwei/Desktop/DeepCode_Project/workbase/DeepCode/deepcode_lab/papers/2/initial_plan.txt"
-        target_directory = "/Users/lizongwei/Desktop/DeepCode_Project/workbase/DeepCode/deepcode_lab/papers/2/"
+        plan_file = os.path.join(
+            os.getcwd(), "deepcode_lab", "papers", "2", "initial_plan.txt"
+        )
+        target_directory = os.path.join(os.getcwd(), "deepcode_lab", "papers", "2")
         print("Implementation Mode Selection:")
         print("1. Pure Code Implementation Mode (Recommended)")
         print("2. Iterative Implementation Mode")

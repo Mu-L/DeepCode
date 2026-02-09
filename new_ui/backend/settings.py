@@ -26,8 +26,15 @@ class Settings(BaseSettings):
     port: int = 8000
     debug: bool = True
 
-    # CORS settings
-    cors_origins: list = ["http://localhost:5173", "http://localhost:3000"]
+    # Environment: "docker" for production, anything else for development
+    env: str = ""
+
+    # CORS settings - in Docker mode, frontend is served by FastAPI (same origin)
+    cors_origins: list = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:8000",
+    ]
 
     # File upload settings
     max_upload_size: int = 100 * 1024 * 1024  # 100MB

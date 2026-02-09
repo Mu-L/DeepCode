@@ -411,6 +411,145 @@ def launch_classic_ui():
         sys.exit(1)
 
 
+def _check_docker_prerequisites():
+    """Check Docker prerequisites and config files. Returns (current_dir, compose_file, compose_args)."""
+    import shutil
+
+    current_dir = Path(__file__).parent
+    compose_file = current_dir / "deepcode_docker" / "docker-compose.yml"
+
+    if not compose_file.exists():
+        print("❌ deepcode_docker/docker-compose.yml not found")
+        print("   Make sure you are running from the DeepCode project root.")
+        sys.exit(1)
+
+    # Check Docker is installed
+    if not shutil.which("docker"):
+        print("❌ Docker not found. Please install Docker Desktop first.")
+        print("   https://www.docker.com/products/docker-desktop")
+        sys.exit(1)
+
+    # Check Docker daemon is running
+    result = subprocess.run(["docker", "info"], capture_output=True, text=True)
+    if result.returncode != 0:
+        print("❌ Docker is installed but not running.")
+        print("   Please start Docker Desktop and try again.")
+        sys.exit(1)
+
+    # Check/create secrets file
+    secrets_file = current_dir / "mcp_agent.secrets.yaml"
+    if not secrets_file.exists():
+        example = current_dir / "mcp_agent.secrets.yaml.example"
+        if example.exists():
+            print("⚠️  mcp_agent.secrets.yaml not found.")
+            print("   Creating from template...")
+            import shutil as sh
+
+            sh.copy2(example, secrets_file)
+            print(f"   ✅ Created {secrets_file}")
+            print("")
+            print("   ⚠️  Please edit mcp_agent.secrets.yaml and fill in your API keys:")
+            print(f"      {secrets_file}")
+            print("")
+            print(
+                "   At least ONE LLM provider key is required (OpenAI/Anthropic/Google)."
+            )
+            print("   Then run 'deepcode' again.")
+            sys.exit(0)
+        else:
+            print(
+                "❌ mcp_agent.secrets.yaml not found. Please create it with your API keys."
+            )
+            sys.exit(1)
+
+    # Check config file
+    config_file = current_dir / "mcp_agent.config.yaml"
+    if not config_file.exists():
+        print("❌ mcp_agent.config.yaml not found.")
+        print("   This file should be in the project root.")
+        sys.exit(1)
+
+    # Ensure data directories exist
+    for d in ["deepcode_lab", "uploads", "logs"]:
+        (current_dir / d).mkdir(exist_ok=True)
+
+    os.chdir(current_dir)
+    compose_args = ["docker", "compose", "-f", str(compose_file)]
+
+    return current_dir, compose_file, compose_args
+
+
+def launch_docker():
+    """Launch DeepCode via Docker"""
+    current_dir, compose_file, compose_args = _check_docker_prerequisites()
+
+    print("🐳 Starting DeepCode with Docker...")
+    print("=" * 50)
+
+    try:
+        # Check if image exists (auto-build on first run)
+        result = subprocess.run(
+            compose_args + ["images", "-q"], capture_output=True, text=True
+        )
+        if not result.stdout.strip():
+            print(
+                "📦 First run detected — building Docker image (may take a few minutes)..."
+            )
+            subprocess.run(compose_args + ["build"], check=True)
+
+        # Start (if already running, docker compose will detect and skip)
+        subprocess.run(compose_args + ["up", "-d"], check=True)
+
+        print("")
+        print("=" * 50)
+        print("✅ DeepCode is running!")
+        print("")
+        print("   🌐 Open: http://localhost:8000")
+        print("   📚 Docs: http://localhost:8000/docs")
+        print("")
+        print("   📋 View logs:  docker logs deepcode -f")
+        print(
+            "   🛑 Stop:       docker compose -f deepcode_docker/docker-compose.yml down"
+        )
+        print("=" * 50)
+
+    except subprocess.CalledProcessError as e:
+        print(f"\n❌ Docker failed: {e}")
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("\n🛑 Cancelled")
+
+
+def launch_docker_cli():
+    """Launch DeepCode CLI inside Docker container"""
+    current_dir, compose_file, compose_args = _check_docker_prerequisites()
+
+    print("🖥️  Starting DeepCode CLI in Docker...")
+    print("=" * 50)
+
+    try:
+        # Check if image exists (auto-build on first run)
+        result = subprocess.run(
+            compose_args + ["images", "-q"], capture_output=True, text=True
+        )
+        if not result.stdout.strip():
+            print(
+                "📦 First run detected — building Docker image (may take a few minutes)..."
+            )
+            subprocess.run(compose_args + ["build"], check=True)
+
+        # Run CLI interactively
+        subprocess.run(
+            compose_args + ["run", "--rm", "-it", "deepcode", "cli"], check=True
+        )
+
+    except subprocess.CalledProcessError as e:
+        print(f"\n❌ Docker failed: {e}")
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("\n🛑 Cancelled")
+
+
 def launch_paper_test(paper_name: str, fast_mode: bool = False):
     """Launch paper testing mode"""
     try:
@@ -456,6 +595,20 @@ def main():
             print_banner()
             launch_paper_test(paper_name, fast_mode)
             return
+        elif sys.argv[1] == "--local":
+            # Launch locally (without Docker) — fall through to local launch below
+            print_banner()
+            pass
+        elif sys.argv[1] == "--docker":
+            # Explicit Docker launch (same as default)
+            print_banner()
+            launch_docker()
+            return
+        elif sys.argv[1] == "--cli":
+            # Launch CLI inside Docker container
+            print_banner()
+            launch_docker_cli()
+            return
         elif sys.argv[1] == "--classic":
             # Launch classic Streamlit UI
             print_banner()
@@ -465,13 +618,18 @@ def main():
             print_banner()
             print("""
 🔧 Usage:
-   deepcode                              - Launch new React-based web UI
+   deepcode                              - Launch via Docker (default, recommended)
+   deepcode --docker                     - Same as above (launch via Docker)
+   deepcode --cli                        - Launch interactive CLI in Docker
+   deepcode --local                      - Launch locally (requires Python + Node.js)
    deepcode test <paper>                 - Test paper reproduction
    deepcode test <paper> --fast          - Test paper (fast mode)
    deepcode --classic                    - Launch classic Streamlit UI
 
 📄 Examples:
-   deepcode                              - Start the new UI (recommended)
+   deepcode                              - Start with Docker (one command)
+   deepcode --cli                        - Interactive CLI in Docker
+   deepcode --local                      - Start the new UI locally
    deepcode test rice                    - Test RICE paper reproduction
    deepcode test rice --fast             - Test RICE paper (fast mode)
 
@@ -498,8 +656,18 @@ def main():
                 "\n   Legend: ✅ = paper.md exists, 📄 = addendum.md exists, ➖ = no addendum"
             )
             return
+        else:
+            # Unknown argument — show help hint
+            print(f"Unknown option: {sys.argv[1]}")
+            print("Run 'deepcode --help' for usage information.")
+            sys.exit(1)
+    else:
+        # Default (no arguments) → Docker
+        print_banner()
+        launch_docker()
+        return
 
-    print_banner()
+    # --- Local launch (only reached via --local) ---
 
     # Show platform info
     current_platform = get_platform()

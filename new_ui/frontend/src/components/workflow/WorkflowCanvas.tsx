@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -60,7 +60,7 @@ export default function WorkflowCanvas({
     },
   }));
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const onConnect = useCallback(
