@@ -148,6 +148,7 @@
 - [🏗️ Architecture](#️-architecture)
 - [📊 Experimental Results](#-experimental-results)
 - [🚀 Quick Start](#-quick-start)
+- [🤖 nanobot Integration (Feishu / Telegram Chatbot)](#-nanobot-integration-feishu--telegram-chatbot)
 - [💡 Examples](#-examples)
   - [🎬 Live Demonstrations](#-live-demonstrations)
 - [⭐ Star History](#-star-history)
@@ -158,7 +159,23 @@
 
 ## 📰 News
 
-🎨 **[2025-02] New Web UI Experience Upgrade!**
+🎉 **[2025-02] DeepCode + nanobot Integration — Chat with DeepCode via Feishu/Telegram!**
+
+<div align="center">
+<table><tr>
+<td align="center"><a href="https://github.com/HKUDS/DeepCode"><img src="./assets/logo.png" alt="DeepCode" height="60"/></a></td>
+<td align="center"><h2>✦</h2></td>
+<td align="center"><a href="https://github.com/HKUDS/nanobot"><img src="https://raw.githubusercontent.com/HKUDS/nanobot/main/nanobot_logo.png" alt="nanobot" height="60"/></a></td>
+</tr></table>
+</div>
+
+- [nanobot](https://github.com/HKUDS/nanobot) now connects to DeepCode — send messages in **Feishu / Telegram** and get auto-generated code back
+- Supports **Paper-to-Code** and **Chat-to-Code**, plus real-time task tracking, all from your chat app
+- One-command deploy: `./nanobot/run_nanobot.sh` → **[Setup Guide →](#-nanobot-integration-feishu--telegram-chatbot)**
+
+---
+
+🎉 **[2025-02] New Web UI Experience Upgrade!**
 
 - 🔄 **User-in-Loop Interaction**: Support real-time user interaction during workflows - AI asks clarifying questions directly in the chat
 - 💬 **Inline Interaction Design**: Interaction prompts appear naturally within the chat flow for a seamless experience
@@ -174,7 +191,7 @@
 
 ---
 
-🎉 **[2025-10] 🎉 [2025-10-28] DeepCode Achieves SOTA on PaperBench!**
+🎉 **[2025-10-28] DeepCode Achieves SOTA on PaperBench!**
 
 DeepCode sets new benchmarks on OpenAI's PaperBench Code-Dev across all categories:
 
@@ -751,128 +768,93 @@ bocha-mcp:
 
 ### ⚡ **Step 3: Launch Application**
 
-#### 🐳 **Docker** (Recommended — Easiest Setup)
+Choose your preferred launch method:
 
-No need to install Python, Node.js, or any dependencies — everything runs inside the container.
+<table width="100%">
+<tr>
+<th width="33%">🐳 Docker (Recommended)</th>
+<th width="33%">🚀 Local (<code>deepcode</code> command)</th>
+<th width="33%">🛠️ Other Methods</th>
+</tr>
+<tr><td>
 
-**Prerequisites:** Install [Docker Desktop](https://www.docker.com/products/docker-desktop) (includes Docker Engine + Docker Compose).
+No Python/Node needed — everything in container.
 
 ```bash
-# 1. Clone the repository (if not already done)
 git clone https://github.com/HKUDS/DeepCode.git
 cd DeepCode/
+cp mcp_agent.secrets.yaml.example \
+   mcp_agent.secrets.yaml
+# Edit secrets with your API keys
 
-# 2. Configure your API keys (see Step 2: Configuration above)
-cp mcp_agent.secrets.yaml.example mcp_agent.secrets.yaml
-# Edit mcp_agent.secrets.yaml with your API keys
-
-# 3. Start with one command
-./deepcode_docker/run_docker.sh        # Build & start (auto-builds on first run)
-
-# Access at http://localhost:8000
+./deepcode_docker/run_docker.sh
+# Access → http://localhost:8000
 ```
 
-**Management Commands:**
-```bash
-./deepcode_docker/run_docker.sh stop         # Stop the service
-./deepcode_docker/run_docker.sh restart      # Restart (after config changes, no rebuild needed)
-./deepcode_docker/run_docker.sh --build      # Rebuild (after code changes)
-./deepcode_docker/run_docker.sh logs         # View real-time logs
-./deepcode_docker/run_docker.sh status       # Check service status
-./deepcode_docker/run_docker.sh clean        # Remove containers and images
-```
+</td><td>
 
-Or use Docker Compose directly:
-```bash
-docker compose -f deepcode_docker/docker-compose.yml up --build   # Build and start
-docker compose -f deepcode_docker/docker-compose.yml up -d        # Start in background
-docker compose -f deepcode_docker/docker-compose.yml down         # Stop
-docker compose -f deepcode_docker/docker-compose.yml logs -f      # View logs
-```
-
-> **💡 Config changes don't need rebuild**: `mcp_agent.config.yaml` and `mcp_agent.secrets.yaml` are mounted as volumes — just edit them and run `./deepcode_docker/run_docker.sh restart`.
->
-> **💡 Windows users**: Run `docker compose -f deepcode_docker/docker-compose.yml up --build` directly if the shell script is not available.
-
-#### 🚀 **Using `deepcode` Command** (Local Installation)
+Auto-installs deps on first run.
 
 ```bash
-# 🌐 Launch the new React-based web interface
 deepcode
-
-# Frontend: http://localhost:5173
-# Backend API: http://localhost:8000
-# Press Ctrl+C to stop all services
+# Frontend → http://localhost:5173
+# Backend  → http://localhost:8000
+# Ctrl+C to stop
 ```
-<div align="center">
-  <img src="https://img.shields.io/badge/Frontend-localhost:5173-00d4ff?style=flat-square&logo=react&logoColor=white" alt="Frontend" />
-  <img src="https://img.shields.io/badge/Backend-localhost:8000-4ecdc4?style=flat-square&logo=fastapi&logoColor=white" alt="Backend" />
-</div>
 
-> **📦 Auto Install**: On first run, dependencies are automatically installed (`pip install` for backend, `npm install` for frontend)
+Features: User-in-Loop, real-time progress, inline chat.
 
-> **✨ Features**: User-in-Loop interaction, real-time progress tracking, inline chat interaction
-
-#### 🛠️ **Alternative Launch Methods**
-
-<table>
-<tr>
-<td><strong>🍎 macOS / 🐧 Linux</strong></td>
-<td><strong>🪟 Windows</strong></td>
-</tr>
-<tr>
-<td>
+</td><td>
 
 ```bash
-# Using run.sh
+# macOS / Linux
 ./run.sh
+# or: python deepcode.py
 
-# Or using Python directly
-python deepcode.py
-```
-
-</td>
-<td>
-
-```cmd
-# Using run.bat
+# Windows
 run.bat
+# or: python deepcode.py
 
-# Or using Python directly
-python deepcode.py
+# Classic Streamlit UI
+deepcode --classic
+
+# CLI mode
+deepcode --cli
+# or: python cli/main_cli.py
 ```
 
-</td>
-</tr>
+</td></tr>
 </table>
 
+<details>
+<summary><strong>🐳 Docker Management Commands</strong></summary>
+
 ```bash
-# Classic Streamlit UI (all platforms)
-deepcode --classic
+./deepcode_docker/run_docker.sh stop      # Stop
+./deepcode_docker/run_docker.sh restart   # Restart (no rebuild needed for config changes)
+./deepcode_docker/run_docker.sh --build   # Force rebuild
+./deepcode_docker/run_docker.sh logs      # Real-time logs
+./deepcode_docker/run_docker.sh status    # Health check
+./deepcode_docker/run_docker.sh clean     # Remove containers & images
 ```
-<div align="center">
-  <img src="https://img.shields.io/badge/Classic_UI-localhost:8501-00d4ff?style=flat-square&logo=streamlit&logoColor=white" alt="Classic UI" />
-</div>
 
-##### 🖥️ **CLI Interface** (Advanced Users)
+Or with Docker Compose directly:
 ```bash
-# CLI via Docker (no local Python needed)
-./deepcode_docker/run_docker.sh cli
-
-# Or: deepcode --cli
-
-# CLI locally (requires Python environment)
-python cli/main_cli.py
+docker compose -f deepcode_docker/docker-compose.yml up --build   # Build & start
+docker compose -f deepcode_docker/docker-compose.yml down         # Stop
+docker compose -f deepcode_docker/docker-compose.yml logs -f      # Logs
 ```
-<div align="center">
-  <img src="https://img.shields.io/badge/Mode-Interactive_Terminal-9b59b6?style=flat-square&logo=terminal&logoColor=white" alt="CLI Mode" />
-</div>
+
+> **💡** Config files are mounted as volumes — edit and restart, no rebuild needed.
+> **💡** Windows users: run `docker compose` commands directly if shell scripts aren't available.
+
+</details>
 
 ### 🎯 **Step 4: Generate Code**
 
-1. **📄 Input**: Upload your research paper, provide requirements, or paste a URL
-2. **🤖 Processing**: Watch the multi-agent system analyze and plan
-3. **⚡ Output**: Receive production-ready code with tests and documentation
+1. **📄 Input** — Upload a research paper, type requirements, or paste a URL
+2. **🤖 Processing** — The multi-agent system analyzes, plans, and generates
+3. **⚡ Output** — Receive production-ready code with tests and documentation
 
 ---
 
@@ -881,64 +863,177 @@ python cli/main_cli.py
 <details>
 <summary><strong>❓ Common Issues & Solutions</strong></summary>
 
-#### 🐳 Docker build fails with `tsc: not found`
-
-```
-node_modules/.bin/tsc: line 1: ../typescript/bin/tsc: not found
-```
-
-**Cause**: Corrupted Docker build cache.
-
-**Fix**: Clear the cache and rebuild:
-```bash
-docker builder prune -f
-docker compose -f deepcode_docker/docker-compose.yml build --no-cache
-docker compose -f deepcode_docker/docker-compose.yml up -d
-```
-
-#### 🐳 Docker command returns `error during connect` / `cannot find the file specified`
-
-**Cause**: Docker Desktop is not running.
-
-**Fix**: Start **Docker Desktop** from the Start menu (Windows) or Applications (macOS), wait until it's fully ready, then retry.
-
-#### 🌐 Frontend displays abnormally or shows a blank page
-
-**Cause**: Corrupted `node_modules` — frontend dependencies are incomplete.
-
-**Fix**: Reinstall frontend dependencies:
-```bash
-cd new_ui/frontend
-rm -rf node_modules
-npm install
-```
-
-Then rebuild (for Docker) or restart (for local mode).
-
-#### 🌐 Browser shows `ERR_CONNECTION_REFUSED` or JSON response instead of UI
-
-**Cause**: Accessing the wrong port or backend not running.
-
-**Fix**:
-- **Docker mode** (`deepcode`): Access **http://localhost:8000**. Make sure the container is running: `docker ps`
-- **Local mode** (`deepcode --local`): Access **http://localhost:5173** (not 8000). Port 5173 is the frontend dev server.
-
-#### 📦 `npm install` fails with `Could not read package.json`
-
-**Cause**: Running `npm install` in the project root instead of the frontend directory.
-
-**Fix**: Run it in the correct directory:
-```bash
-npm install --prefix new_ui/frontend
-```
-
-#### 🪟 Windows: MCP servers not working
-
-See the [Windows MCP Server Configuration](#-step-2-configuration) section above for setting up absolute paths.
+| Problem | Cause | Fix |
+|---|---|---|
+| Docker build fails with `tsc: not found` | Corrupted build cache | `docker builder prune -f` then rebuild with `--no-cache` |
+| `error during connect` / `cannot find the file` | Docker Desktop not running | Start Docker Desktop, wait until ready, retry |
+| Frontend blank page | Corrupted `node_modules` | `cd new_ui/frontend && rm -rf node_modules && npm install` |
+| `ERR_CONNECTION_REFUSED` | Wrong port / backend not running | Docker: `http://localhost:8000`. Local: `http://localhost:5173` |
+| `npm install` → `Could not read package.json` | Wrong directory | Use `npm install --prefix new_ui/frontend` |
+| Windows: MCP servers not working | Need absolute paths | See [Windows MCP Configuration](#-step-2-configuration) above |
 
 </details>
 
   ---
+
+## 🤖 nanobot Integration (Feishu / Telegram Chatbot)
+
+> Chat with DeepCode from **Feishu**, **Telegram**, or **Discord** — powered by [nanobot](https://github.com/HKUDS/nanobot).
+
+<div align="center">
+
+```mermaid
+flowchart LR
+    subgraph Clients["💬 Chat Platforms"]
+        direction TB
+        F["<b>Feishu</b><br/>WebSocket"]
+        T["<b>Telegram</b><br/>Polling"]
+        D["<b>Discord</b><br/>Gateway"]
+    end
+
+    subgraph Gateway["🐈 nanobot Gateway"]
+        direction TB
+        A["Agent Loop<br/><i>LLM + Tool Calls</i>"]
+    end
+
+    subgraph Engine["🧠 DeepCode Engine"]
+        direction TB
+        P2C["Paper → Code"]
+        C2C["Chat → Code"]
+        TRK["Task Tracking"]
+    end
+
+    F & T & D <-->|"messages"| A
+    A -->|"HTTP API"| P2C & C2C & TRK
+    A -.->|"LLM API"| LLM["☁️ OpenRouter"]
+
+    style Clients fill:#1a1a2e,stroke:#00d9ff,color:#fff
+    style Gateway fill:#1a1a2e,stroke:#4ecdc4,color:#fff
+    style Engine fill:#1a1a2e,stroke:#ff6b6b,color:#fff
+    style LLM fill:#1a1a2e,stroke:#9b59b6,color:#fff
+```
+
+</div>
+
+<div align="center">
+<table><tr>
+<td align="center"><a href="https://github.com/HKUDS/DeepCode"><img src="./assets/logo.png" alt="DeepCode" height="55"/></a></td>
+<td align="center"><h2>✦</h2></td>
+<td align="center"><a href="https://github.com/HKUDS/nanobot"><img src="https://raw.githubusercontent.com/HKUDS/nanobot/main/nanobot_logo.png" alt="nanobot" height="55"/></a></td>
+</tr></table>
+</div>
+
+Both services run inside the same **Docker Compose** network. Prerequisites: **Docker Desktop** + **OpenRouter API Key** ([get one](https://openrouter.ai/keys)) + **Feishu App** (or Telegram bot token).
+
+---
+
+### Step 1 · Create a Feishu Bot
+
+<details open>
+<summary><b>Feishu / Lark</b> (Recommended — WebSocket, no public IP needed)</summary>
+
+1. Go to [Feishu Open Platform](https://open.feishu.cn/app) → **Create Custom App**
+2. Enable **Bot** capability in App Features
+3. Add permissions: `im:message` · `im:message:send_as_bot`
+4. Event Subscription → select **Long Connection** → add `im.message.receive_v1`
+5. Note your **App ID** (`cli_xxx`) and **App Secret** → Publish the app
+
+> **Note**: Feishu requires an active WebSocket connection before you can save "Long Connection" mode. Start nanobot first (Step 3), then come back to configure Event Subscription.
+
+</details>
+
+<details>
+<summary><b>Telegram</b> (Alternative)</summary>
+
+1. Message **@BotFather** → `/newbot` → copy the bot token
+2. Set in `nanobot_config.json`: `"telegram": { "enabled": true, "token": "YOUR_TOKEN" }` and `"feishu": { "enabled": false }`
+
+</details>
+
+---
+
+### Step 2 · Configure
+
+```bash
+cp nanobot_config.json.example nanobot_config.json
+```
+
+Edit `nanobot_config.json` — fill in the 3 required fields:
+
+```jsonc
+{
+  "channels": {
+    "feishu": {
+      "enabled": true,
+      "appId": "cli_xxx",              // ← Feishu App ID
+      "appSecret": "xxx",              // ← Feishu App Secret
+      "allowFrom": []                  // [] = allow all users
+    }
+  },
+  "providers": {
+    "openrouter": {
+      "apiKey": "sk-or-v1-xxx"         // ← OpenRouter API Key
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": "anthropic/claude-sonnet-4-20250514"
+    }
+  }
+}
+```
+
+> **Model choice**: Any model on [openrouter.ai/models](https://openrouter.ai/models). Use `anthropic/claude-sonnet-4-20250514` for English, `minimax/minimax-m2.1` for Chinese.
+
+---
+
+### Step 3 · Launch
+
+Make sure `mcp_agent.secrets.yaml` has your DeepCode API keys (see [Configuration](#-step-2-configuration)), then:
+
+```bash
+./nanobot/run_nanobot.sh -d          # Start both DeepCode + nanobot in background
+```
+
+The script checks Docker, validates configs, builds images (first run only), and starts both containers.
+
+```
+✓ DeepCode API:  http://localhost:8000
+✓ Nanobot:       http://localhost:18790
+```
+
+Now open Feishu → find your bot → send a message!
+
+<details>
+<summary><b>Management Commands</b></summary>
+
+```bash
+./nanobot/run_nanobot.sh              # Start (foreground)
+./nanobot/run_nanobot.sh -d           # Start (background)
+./nanobot/run_nanobot.sh stop         # Stop all services
+./nanobot/run_nanobot.sh restart      # Restart (config changes take effect immediately)
+./nanobot/run_nanobot.sh --build      # Force rebuild Docker images
+./nanobot/run_nanobot.sh logs         # View real-time logs
+./nanobot/run_nanobot.sh status       # Health check
+./nanobot/run_nanobot.sh clean        # Remove containers & images
+```
+
+</details>
+
+<details>
+<summary><b>Troubleshooting</b></summary>
+
+| Problem | Fix |
+|---|---|
+| Feishu bot doesn't respond | Check logs (`./nanobot/run_nanobot.sh logs`), verify `appId`/`appSecret`, ensure app is published with Long Connection mode |
+| Can't connect to DeepCode | Verify `deepcode` container is healthy: `curl http://localhost:8000/health` |
+| Wrong language output | Switch model — `minimax-m2.1` defaults to Chinese, use Claude/GPT for English |
+| Config not taking effect | Just restart: `./nanobot/run_nanobot.sh restart` (no rebuild needed) |
+| Clear chat history | Send `/clear` in chat, or: `docker exec nanobot sh -c 'rm -rf /root/.nanobot/sessions/*.jsonl'` |
+
+</details>
+
+---
 
 ## 💡 Examples
 
