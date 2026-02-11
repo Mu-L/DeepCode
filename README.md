@@ -148,7 +148,7 @@
 - [🏗️ Architecture](#️-architecture)
 - [📊 Experimental Results](#-experimental-results)
 - [🚀 Quick Start](#-quick-start)
-- [🤖 nanobot Integration (Feishu / Telegram Chatbot)](#-nanobot-integration-feishu--telegram-chatbot)
+- [🤖 nanobot Integration (Feishu Chatbot)](#-nanobot-integration-feishu-chatbot)
 - [💡 Examples](#-examples)
   - [🎬 Live Demonstrations](#-live-demonstrations)
 - [⭐ Star History](#-star-history)
@@ -159,7 +159,7 @@
 
 ## 📰 News
 
-🎉 **[2025-02] DeepCode + nanobot Integration — Chat with DeepCode via Feishu/Telegram!**
+🎉 **[2025-02] DeepCode + nanobot Integration — Chat with DeepCode via Feishu Bot!**
 
 <div align="center">
 <table><tr>
@@ -169,9 +169,21 @@
 </tr></table>
 </div>
 
-- [nanobot](https://github.com/HKUDS/nanobot) now connects to DeepCode — send messages in **Feishu / Telegram** and get auto-generated code back
+- [nanobot](https://github.com/HKUDS/nanobot) now connects to DeepCode — send messages in **Feishu** and get auto-generated code back
 - Supports **Paper-to-Code** and **Chat-to-Code**, plus real-time task tracking, all from your chat app
-- One-command deploy: `./nanobot/run_nanobot.sh` → **[Setup Guide →](#-nanobot-integration-feishu--telegram-chatbot)**
+- One-command deploy: `./nanobot/run_nanobot.sh` → **[Setup Guide →](#-nanobot-integration-feishu-chatbot)**
+
+<div align="center">
+<table width="100%"><tr>
+<td width="50%" align="center">
+  <img src="./assets/IMG_8098.jpeg" alt="Feishu Chat Example 1" width="95%" style="border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"/>
+</td>
+<td width="50%" align="center">
+  <img src="./assets/IMG_8099.jpeg" alt="Feishu Chat Example 2" width="95%" style="border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"/>
+</td>
+</tr></table>
+<sub><em>Feishu Bot in Action — Natural language → Full code generation with setup instructions</em></sub>
+</div>
 
 ---
 
@@ -876,9 +888,9 @@ docker compose -f deepcode_docker/docker-compose.yml logs -f      # Logs
 
   ---
 
-## 🤖 nanobot Integration (Feishu / Telegram Chatbot)
+## 🤖 nanobot Integration (Feishu Chatbot)
 
-> Chat with DeepCode from **Feishu**, **Telegram**, or **Discord** — powered by [nanobot](https://github.com/HKUDS/nanobot).
+> Chat with DeepCode from **Feishu** — powered by [nanobot](https://github.com/HKUDS/nanobot).
 
 <div align="center">
 
@@ -923,7 +935,7 @@ flowchart LR
 </tr></table>
 </div>
 
-Both services run inside the same **Docker Compose** network. Prerequisites: **Docker Desktop** + **OpenRouter API Key** ([get one](https://openrouter.ai/keys)) + **Feishu App** (or Telegram bot token).
+Both services run inside the same **Docker Compose** network. Prerequisites: **Docker Desktop** + **OpenRouter API Key** ([get one](https://openrouter.ai/keys)) + **Feishu App**.
 
 ---
 
@@ -941,16 +953,6 @@ Both services run inside the same **Docker Compose** network. Prerequisites: **D
 > **Note**: Feishu requires an active WebSocket connection before you can save "Long Connection" mode. Start nanobot first (Step 3), then come back to configure Event Subscription.
 
 </details>
-
-<details>
-<summary><b>Telegram</b> (Alternative)</summary>
-
-1. Message **@BotFather** → `/newbot` → copy the bot token
-2. Set in `nanobot_config.json`: `"telegram": { "enabled": true, "token": "YOUR_TOKEN" }` and `"feishu": { "enabled": false }`
-
-</details>
-
----
 
 ### Step 2 · Configure
 

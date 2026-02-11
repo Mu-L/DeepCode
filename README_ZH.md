@@ -147,6 +147,7 @@
 - [🏗️ 架构](#️-架构)
 - [📊 实验结果](#-实验结果)
 - [🚀 快速开始](#-快速开始)
+- [🤖 nanobot 集成（飞书聊天机器人）](#-nanobot-集成飞书聊天机器人)
 - [💡 示例](#-示例)
   - [🎬 实时演示](#-实时演示)
 - [⭐ 星标历史](#-星标历史)
@@ -156,7 +157,35 @@
 
 ## 📰 新闻
 
-🎨 **[2025-02] 全新 Web UI 体验升级！**
+🎉 **[2025-02] DeepCode + nanobot 集成 — 通过飞书聊天使用 DeepCode！**
+
+<div align="center">
+<table><tr>
+<td align="center"><a href="https://github.com/HKUDS/DeepCode"><img src="./assets/logo.png" alt="DeepCode" height="60"/></a></td>
+<td align="center"><h2>✦</h2></td>
+<td align="center"><a href="https://github.com/HKUDS/nanobot"><img src="./assets/nanobot.png" alt="nanobot" height="60"/></a></td>
+</tr></table>
+</div>
+
+- [nanobot](https://github.com/HKUDS/nanobot) 现已连接到 DeepCode — 在**飞书**中发送消息即可自动生成代码
+- 支持**论文转代码**和**对话转代码**，以及实时任务跟踪，全部在聊天应用中完成
+- 一键部署：`./nanobot/run_nanobot.sh` → **[设置指南 →](#-nanobot-集成飞书聊天机器人)**
+
+<div align="center">
+<table width="100%"><tr>
+<td width="50%" align="center">
+  <img src="./assets/IMG_8098.jpeg" alt="飞书聊天示例 1" width="95%" style="border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"/>
+</td>
+<td width="50%" align="center">
+  <img src="./assets/IMG_8099.jpeg" alt="飞书聊天示例 2" width="95%" style="border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"/>
+</td>
+</tr></table>
+<sub><em>飞书机器人实战 — 自然语言 → 完整代码生成，带设置说明</em></sub>
+</div>
+
+---
+
+🎉 **[2025-02] 全新 Web UI 体验升级！**
 
 - 🔄 **用户交互循环 (User-in-Loop)**: 支持工作流程中的实时用户交互，AI 会在对话中向您提问以澄清需求
 - 💬 **内联交互设计**: 交互问题直接显示在对话框中，体验更自然流畅
@@ -172,7 +201,7 @@
 
 ---
 
-🎉 **[2025-10] 🎉 [2025-10-28] DeepCode在PaperBench上达到最先进水平！**
+🎉 **[2025-10-28] DeepCode在PaperBench上达到最先进水平！**
 
 DeepCode在OpenAI的PaperBench Code-Dev所有类别中创造新基准：
 
@@ -748,128 +777,93 @@ bocha-mcp:
 
 ### ⚡ **步骤3: 启动应用程序**
 
-#### 🐳 **Docker** (推荐 — 最简单的方式)
+选择您偏好的启动方式：
 
-无需安装 Python、Node.js 或任何依赖 — 一切都在容器内运行。
+<table width="100%">
+<tr>
+<th width="33%">🐳 Docker (推荐)</th>
+<th width="33%">🚀 本地 (<code>deepcode</code> 命令)</th>
+<th width="33%">🛠️ 其他方式</th>
+</tr>
+<tr><td>
 
-**前提条件:** 安装 [Docker Desktop](https://www.docker.com/products/docker-desktop)（包含 Docker Engine + Docker Compose）。
+无需 Python/Node — 一切在容器内。
 
 ```bash
-# 1. 克隆项目（如果还没有）
 git clone https://github.com/HKUDS/DeepCode.git
 cd DeepCode/
+cp mcp_agent.secrets.yaml.example \
+   mcp_agent.secrets.yaml
+# 编辑填入 API Key
 
-# 2. 配置 API 密钥（详见上方步骤 2: 配置）
-cp mcp_agent.secrets.yaml.example mcp_agent.secrets.yaml
-# 编辑 mcp_agent.secrets.yaml 填入你的 API Key
-
-# 3. 一键启动
-./deepcode_docker/run_docker.sh        # 构建并启动（首次运行自动构建）
-
-# 访问 http://localhost:8000
+./deepcode_docker/run_docker.sh
+# 访问 → http://localhost:8000
 ```
 
-**管理命令:**
+</td><td>
+
+首次运行自动安装依赖。
+
 ```bash
-./deepcode_docker/run_docker.sh stop         # 停止服务
-./deepcode_docker/run_docker.sh restart      # 重启（修改配置后使用，无需重建）
-./deepcode_docker/run_docker.sh --build      # 重新构建（修改代码后使用）
-./deepcode_docker/run_docker.sh logs         # 查看实时日志
-./deepcode_docker/run_docker.sh status       # 查看服务状态
-./deepcode_docker/run_docker.sh clean        # 删除容器和镜像
+deepcode
+# 前端 → http://localhost:5173
+# 后端 → http://localhost:8000
+# Ctrl+C 停止
 ```
 
-或直接使用 Docker Compose:
+特性：用户交互循环、实时进度、内联对话。
+
+</td><td>
+
+```bash
+# macOS / Linux
+./run.sh
+# 或: python deepcode.py
+
+# Windows
+run.bat
+# 或: python deepcode.py
+
+# 经典 Streamlit UI
+deepcode --classic
+
+# CLI 模式
+deepcode --cli
+# 或: python cli/main_cli.py
+```
+
+</td></tr>
+</table>
+
+<details>
+<summary><strong>🐳 Docker 管理命令</strong></summary>
+
+```bash
+./deepcode_docker/run_docker.sh stop      # 停止
+./deepcode_docker/run_docker.sh restart   # 重启（配置更改无需重建）
+./deepcode_docker/run_docker.sh --build   # 强制重建
+./deepcode_docker/run_docker.sh logs      # 实时日志
+./deepcode_docker/run_docker.sh status    # 健康检查
+./deepcode_docker/run_docker.sh clean     # 删除容器和镜像
+```
+
+或直接使用 Docker Compose：
 ```bash
 docker compose -f deepcode_docker/docker-compose.yml up --build   # 构建并启动
-docker compose -f deepcode_docker/docker-compose.yml up -d        # 后台启动
 docker compose -f deepcode_docker/docker-compose.yml down         # 停止
 docker compose -f deepcode_docker/docker-compose.yml logs -f      # 查看日志
 ```
 
-> **💡 修改配置无需重建**: `mcp_agent.config.yaml` 和 `mcp_agent.secrets.yaml` 以卷挂载方式映射 — 编辑后执行 `./deepcode_docker/run_docker.sh restart` 即可。
->
-> **💡 Windows 用户**: 如果 Shell 不支持脚本，可直接使用 `docker compose -f deepcode_docker/docker-compose.yml up --build`。
+> **💡** 配置文件以卷方式挂载 — 编辑后重启即可，无需重建。
+> **💡** Windows 用户：如果脚本不可用，可直接运行 `docker compose` 命令。
 
-#### 🚀 **使用 `deepcode` 命令**（本地安装）
-
-```bash
-# 🌐 启动新版 React 界面
-deepcode
-
-# 前端: http://localhost:5173
-# 后端 API: http://localhost:8000
-# 按 Ctrl+C 停止所有服务
-```
-<div align="center">
-  <img src="https://img.shields.io/badge/前端-localhost:5173-00d4ff?style=flat-square&logo=react&logoColor=white" alt="Frontend" />
-  <img src="https://img.shields.io/badge/后端-localhost:8000-4ecdc4?style=flat-square&logo=fastapi&logoColor=white" alt="Backend" />
-</div>
-
-> **📦 自动安装**: 首次运行时会自动安装依赖（后端 `pip install`，前端 `npm install`）
-
-> **✨ 特性**: 用户交互循环、实时进度跟踪、内联对话交互
-
-#### 🛠️ **其他启动方式**
-
-<table>
-<tr>
-<td><strong>🍎 macOS / 🐧 Linux</strong></td>
-<td><strong>🪟 Windows</strong></td>
-</tr>
-<tr>
-<td>
-
-```bash
-# 使用 run.sh
-./run.sh
-
-# 或直接使用 Python
-python deepcode.py
-```
-
-</td>
-<td>
-
-```cmd
-# 使用 run.bat
-run.bat
-
-# 或直接使用 Python
-python deepcode.py
-```
-
-</td>
-</tr>
-</table>
-
-```bash
-# 经典 Streamlit UI (所有平台)
-deepcode --classic
-```
-<div align="center">
-  <img src="https://img.shields.io/badge/经典_UI-localhost:8501-00d4ff?style=flat-square&logo=streamlit&logoColor=white" alt="Classic UI" />
-</div>
-
-##### 🖥️ **CLI界面** (高级用户)
-```bash
-# 通过 Docker 运行 CLI（无需本地 Python 环境）
-./deepcode_docker/run_docker.sh cli
-
-# 或: deepcode --cli
-
-# 本地运行 CLI（需要 Python 环境）
-python cli/main_cli.py
-```
-<div align="center">
-  <img src="https://img.shields.io/badge/模式-交互式终端-9b59b6?style=flat-square&logo=terminal&logoColor=white" alt="CLI Mode" />
-</div>
+</details>
 
 ### 🎯 **步骤4: 生成代码**
 
-1. **📄 输入**: 上传您的研究论文，提供需求，或粘贴URL
-2. **🤖 处理**: 观看多智能体系统分析和规划
-3. **⚡ 输出**: 接收带有测试和文档的生产就绪代码
+1. **📄 输入** — 上传研究论文、输入需求，或粘贴 URL
+2. **🤖 处理** — 多智能体系统分析、规划并生成
+3. **⚡ 输出** — 接收带测试和文档的生产就绪代码
 
 ---
 
@@ -878,62 +872,204 @@ python cli/main_cli.py
 <details>
 <summary><strong>❓ 常见问题与解决方案</strong></summary>
 
-#### 🐳 Docker 构建失败，提示 `tsc: not found`
+| 问题 | 原因 | 解决方案 |
+|---|---|---|
+| Docker 构建失败 `tsc: not found` | 构建缓存损坏 | `docker builder prune -f` 然后用 `--no-cache` 重建 |
+| `error during connect` / `cannot find the file` | Docker Desktop 未运行 | 启动 Docker Desktop，等待就绪后重试 |
+| 前端空白页面 | `node_modules` 损坏 | `cd new_ui/frontend && rm -rf node_modules && npm install` |
+| `ERR_CONNECTION_REFUSED` | 端口错误/后端未运行 | Docker: `http://localhost:8000`。本地: `http://localhost:5173` |
+| `npm install` → `Could not read package.json` | 目录错误 | 使用 `npm install --prefix new_ui/frontend` |
+| Windows: MCP 服务器无法工作 | 需要绝对路径 | 参见上方 [Windows MCP 配置](#-步骤2-配置) |
 
+</details>
+
+---
+
+## 🤖 nanobot 集成（飞书聊天机器人）
+
+**直接在飞书中使用 DeepCode — 发送消息，获取代码！**
+
+[nanobot](https://github.com/HKUDS/nanobot) 是一个超轻量级 AI 助手，现已与 DeepCode 深度集成。通过飞书聊天，您可以：
+- 🚀 提交**论文转代码**任务（`paper2code`）— 粘贴 arXiv 链接即可
+- 💬 启动**对话转代码**（`chat2code`）— 用自然语言描述需求
+- 📊 实时查询任务状态（`deepcode_status`）— 获取进度和结果
+- ✅ 响应 DeepCode 交互提示 — 当 AI 需要澄清需求时直接在聊天中回答
+
+### 🏗️ 架构概览
+
+```mermaid
+flowchart TB
+    subgraph ChatPlatforms[💬 聊天平台]
+        Feishu[<b>飞书</b><br/>📱 当前支持]
+        Telegram[Telegram<br/>🔜 即将支持]
+        Discord[Discord<br/>🔜 即将支持]
+    end
+
+    subgraph NanobotCore[🤖 Nanobot 核心]
+        LLM[LLM 推理引擎<br/>Claude / GPT / Minimax]
+        Tools[工具层<br/>web_fetch / code_executor / deepcode]
+    end
+
+    subgraph DeepCodeEngine[⚡ DeepCode 引擎]
+        API[HTTP API<br/>任务提交 & 查询]
+        Agents[多智能体系统<br/>规划 / 分析 / 生成]
+        Output[代码输出<br/>测试 + 文档]
+    end
+
+    Feishu -->|WebSocket| NanobotCore
+    Telegram -.->|未来集成| NanobotCore
+    Discord -.->|未来集成| NanobotCore
+
+    NanobotCore -->|调用 deepcode_* 工具| DeepCodeEngine
+    DeepCodeEngine -->|返回结果 & 进度| NanobotCore
+    NanobotCore -->|推送消息| Feishu
+
+    style Feishu fill:#0EA5E9,stroke:#0284c7,stroke-width:3px,color:#fff
+    style NanobotCore fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
+    style DeepCodeEngine fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style Telegram fill:#d1d5db,stroke:#9ca3af,stroke-width:1px,color:#4b5563,stroke-dasharray: 5 5
+    style Discord fill:#d1d5db,stroke:#9ca3af,stroke-width:1px,color:#4b5563,stroke-dasharray: 5 5
 ```
-node_modules/.bin/tsc: line 1: ../typescript/bin/tsc: not found
+
+> 🎯 **当前支持**: 飞书（Feishu / Lark）
+> 🔮 **架构预留**: Telegram 和 Discord 节点为未来扩展保留
+
+---
+
+### 📋 前置条件
+
+- ✅ DeepCode 后端正在运行（见上方 [快速开始](#-快速开始)）
+- ✅ 飞书企业应用（或租用应用）— 免费创建
+- ✅ LLM API 密钥（OpenRouter / Claude / Minimax）
+
+---
+
+### 🚀 三步完成设置
+
+#### **Step 1 · 创建飞书机器人**
+
+<details>
+<summary><strong>📱 点击展开飞书应用创建步骤</strong></summary>
+
+1. 登录 [飞书开放平台](https://open.feishu.cn/app)
+2. 点击 **创建企业自建应用**
+3. 填写应用名称和描述，上传图标
+4. 进入 **凭证与基础信息** 页面，复制：
+   - `App ID`
+   - `App Secret`
+5. 进入 **事件订阅** 页面：
+   - **请求地址 URL**: `http://your-server-ip:8081/feishu/event`（公网可访问）
+   - **消息加密**: 复制 `Encrypt Key` 和 `Verification Token`
+6. 进入 **权限管理**，开通以下权限：
+   - `im:message`（接收消息）
+   - `im:message:send_as_bot`（发送消息）
+   - `im:chat`（获取群信息）
+7. **发布版本** → 等待管理员审核通过
+
+> 💡 **开发环境**: 可使用 [ngrok](https://ngrok.com/) 或 [localhost.run](https://localhost.run/) 将本地 8081 端口映射到公网。
+
+</details>
+
+---
+
+#### **Step 2 · 配置**
+
+编辑项目根目录的 `nanobot_config.json`:
+
+```json
+{
+  "channels": [
+    {
+      "type": "feishu",
+      "app_id": "cli_xxxxxxxxxxxxx",
+      "app_secret": "your_app_secret",
+      "encrypt_key": "your_encrypt_key",
+      "verification_token": "your_verification_token"
+    }
+  ],
+  "llm": {
+    "provider": "openai",  // 或 "anthropic" / "minimax"
+    "model": "openai/gpt-4o",  // 推荐英文模型
+    "api_key": "your_api_key",
+    "base_url": "https://openrouter.ai/api/v1"  // 可选
+  },
+  "deepcode": {
+    "api_url": "http://localhost:8000"  // DeepCode 后端地址
+  }
+}
 ```
 
-**原因**：Docker 构建缓存损坏。
+> 💡 **提示**: 使用 `nanobot_config.json.example` 作为模板。
 
-**解决**：清除缓存并重新构建：
+---
+
+#### **Step 3 · 启动**
+
+确保 DeepCode 后端已运行，然后启动 nanobot:
+
 ```bash
-docker builder prune -f
-docker compose -f deepcode_docker/docker-compose.yml build --no-cache
+cd DeepCode/
+./nanobot/run_nanobot.sh
+```
+
+**Docker Compose 模式** (同时启动 DeepCode + nanobot):
+
+```bash
 docker compose -f deepcode_docker/docker-compose.yml up -d
 ```
 
-#### 🐳 Docker 命令报错 `error during connect` / `cannot find the file specified`
+访问飞书，找到你的机器人，发送消息测试：
 
-**原因**：Docker Desktop 未启动。
-
-**解决**：从开始菜单启动 **Docker Desktop**，等待完全就绪后再重试。
-
-#### 🌐 前端页面显示异常或空白
-
-**原因**：`node_modules` 损坏，前端依赖不完整。
-
-**解决**：重新安装前端依赖：
-```bash
-cd new_ui/frontend
-rm -rf node_modules
-npm install
+```
+hi
 ```
 
-然后重新构建（Docker 模式）或重启（本地模式）。
+如果收到回复，说明配置成功！🎉
 
-#### 🌐 浏览器显示 `ERR_CONNECTION_REFUSED` 或 JSON 而非界面
+---
 
-**原因**：访问了错误的端口，或后端未运行。
+### 💡 使用示例
 
-**解决**：
-- **Docker 模式**（`deepcode`）：访问 **http://localhost:8000**，确认容器正在运行：`docker ps`
-- **本地模式**（`deepcode --local`）：访问 **http://localhost:5173**（不是 8000），5173 是前端开发服务器端口
+| 操作 | 命令示例 |
+|---|---|
+| **论文转代码** | `paper2code https://arxiv.org/abs/2104.09864` |
+| **对话转代码** | `chat2code 实现一个计算斐波那契数列的 Python 函数` |
+| **查询任务状态** | `deepcode_status task_abc123` |
+| **响应交互** | 当 AI 询问"需要测试用例吗？"时直接回复 `是` 或 `否` |
 
-#### 📦 `npm install` 报错 `Could not read package.json`
+---
 
-**原因**：在项目根目录运行了 `npm install`，而非前端目录。
+<details>
+<summary><strong>🛠️ nanobot 管理命令</strong></summary>
 
-**解决**：在正确的目录下运行：
 ```bash
-npm install --prefix new_ui/frontend
+# 查看日志（Docker 模式）
+docker compose -f deepcode_docker/docker-compose.yml logs -f nanobot
+
+# 重启 nanobot（Docker 模式）
+docker compose -f deepcode_docker/docker-compose.yml restart nanobot
+
+# 停止所有服务（Docker 模式）
+docker compose -f deepcode_docker/docker-compose.yml down
 ```
-
-#### 🪟 Windows：MCP 服务器无法工作
-
-请参考上方 [步骤2: 配置](#-步骤2-配置) 中的 Windows MCP 服务器配置说明，设置绝对路径。
 
 </details>
+
+---
+
+<details>
+<summary><strong>🔧 常见问题（nanobot）</strong></summary>
+
+| 问题 | 解决方案 |
+|---|---|
+| nanobot 响应为中文 | 修改 `nanobot_config.json` 中 `llm.model` 为英文模型（如 `gpt-4o`） |
+| 飞书收不到消息 | 检查事件订阅 URL 是否可公网访问，端口 8081 是否开放 |
+| DeepCode 任务提交失败 | 确认 `deepcode.api_url` 正确，后端正在运行 |
+| nanobot 容器无法启动 | 检查 `nanobot_config.json` 格式是否正确（使用 JSON 验证器） |
+
+</details>
+
+---
 
   ---
 
