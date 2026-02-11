@@ -165,7 +165,7 @@
 <table><tr>
 <td align="center"><a href="https://github.com/HKUDS/DeepCode"><img src="./assets/logo.png" alt="DeepCode" height="60"/></a></td>
 <td align="center"><h2>✦</h2></td>
-<td align="center"><a href="https://github.com/HKUDS/nanobot"><img src="https://raw.githubusercontent.com/HKUDS/nanobot/main/nanobot_logo.png" alt="nanobot" height="60"/></a></td>
+<td align="center"><a href="https://github.com/HKUDS/nanobot"><img src="./assets/nanobot.png" alt="nanobot" height="60"/></a></td>
 </tr></table>
 </div>
 
@@ -919,7 +919,7 @@ flowchart LR
 <table><tr>
 <td align="center"><a href="https://github.com/HKUDS/DeepCode"><img src="./assets/logo.png" alt="DeepCode" height="55"/></a></td>
 <td align="center"><h2>✦</h2></td>
-<td align="center"><a href="https://github.com/HKUDS/nanobot"><img src="https://raw.githubusercontent.com/HKUDS/nanobot/main/nanobot_logo.png" alt="nanobot" height="55"/></a></td>
+<td align="center"><a href="https://github.com/HKUDS/nanobot"><img src="./assets/nanobot.png" alt="nanobot" height="55"/></a></td>
 </tr></table>
 </div>
 
