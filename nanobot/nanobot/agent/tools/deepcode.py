@@ -8,7 +8,6 @@ Communication: HTTP requests to DeepCode's FastAPI backend.
 In Docker Compose: nanobot -> http://deepcode:8000/api/v1/...
 """
 
-import json
 import os
 from typing import Any
 
@@ -96,7 +95,9 @@ class DeepCodePaper2CodeTool(Tool):
         except httpx.ConnectError:
             return "Error: Cannot connect to DeepCode backend. Is the DeepCode service running?"
         except httpx.HTTPStatusError as e:
-            return f"Error: DeepCode API returned status {e.response.status_code}: {e.response.text}"
+            return (
+                f"Error: DeepCode API returned status {e.response.status_code}: {e.response.text}"
+            )
         except Exception as e:
             return f"Error submitting paper to DeepCode: {str(e)}"
 
@@ -166,7 +167,9 @@ class DeepCodeChat2CodeTool(Tool):
         except httpx.ConnectError:
             return "Error: Cannot connect to DeepCode backend. Is the DeepCode service running?"
         except httpx.HTTPStatusError as e:
-            return f"Error: DeepCode API returned status {e.response.status_code}: {e.response.text}"
+            return (
+                f"Error: DeepCode API returned status {e.response.status_code}: {e.response.text}"
+            )
         except Exception as e:
             return f"Error submitting requirements to DeepCode: {str(e)}"
 
@@ -205,9 +208,7 @@ class DeepCodeStatusTool(Tool):
     async def execute(self, task_id: str, **kwargs: Any) -> str:
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
-                response = await client.get(
-                    f"{self._api_url}/api/v1/workflows/status/{task_id}"
-                )
+                response = await client.get(f"{self._api_url}/api/v1/workflows/status/{task_id}")
                 response.raise_for_status()
                 data = response.json()
 
@@ -233,7 +234,7 @@ class DeepCodeStatusTool(Tool):
                 elif status == "waiting_for_input":
                     interaction = data.get("pending_interaction")
                     if interaction:
-                        lines.append(f"\nWaiting for user input:")
+                        lines.append("\nWaiting for user input:")
                         lines.append(f"  Type: {interaction.get('type', 'unknown')}")
                         lines.append(f"  Title: {interaction.get('title', '')}")
                         lines.append(f"  Description: {interaction.get('description', '')}")
@@ -245,7 +246,9 @@ class DeepCodeStatusTool(Tool):
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 404:
                 return f"Error: Task '{task_id}' not found. It may have expired."
-            return f"Error: DeepCode API returned status {e.response.status_code}: {e.response.text}"
+            return (
+                f"Error: DeepCode API returned status {e.response.status_code}: {e.response.text}"
+            )
         except Exception as e:
             return f"Error checking task status: {str(e)}"
 
@@ -285,9 +288,7 @@ class DeepCodeListTasksTool(Tool):
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
                 # Fetch active tasks
-                active_resp = await client.get(
-                    f"{self._api_url}/api/v1/workflows/active"
-                )
+                active_resp = await client.get(f"{self._api_url}/api/v1/workflows/active")
                 active_resp.raise_for_status()
                 active_data = active_resp.json()
 
@@ -369,9 +370,7 @@ class DeepCodeCancelTool(Tool):
     async def execute(self, task_id: str, **kwargs: Any) -> str:
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
-                response = await client.post(
-                    f"{self._api_url}/api/v1/workflows/cancel/{task_id}"
-                )
+                response = await client.post(f"{self._api_url}/api/v1/workflows/cancel/{task_id}")
                 response.raise_for_status()
                 return f"Task '{task_id}' has been cancelled successfully."
         except httpx.ConnectError:
@@ -379,7 +378,9 @@ class DeepCodeCancelTool(Tool):
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 400:
                 return f"Error: Task '{task_id}' not found or cannot be cancelled."
-            return f"Error: DeepCode API returned status {e.response.status_code}: {e.response.text}"
+            return (
+                f"Error: DeepCode API returned status {e.response.status_code}: {e.response.text}"
+            )
         except Exception as e:
             return f"Error cancelling task: {str(e)}"
 
@@ -448,7 +449,7 @@ class DeepCodeRespondTool(Tool):
                     },
                 )
                 response.raise_for_status()
-                result = response.json()
+                response.json()  # validate JSON response
                 return (
                     f"Response submitted successfully!\n"
                     f"Task ID: {task_id}\n"
@@ -461,7 +462,9 @@ class DeepCodeRespondTool(Tool):
             if e.response.status_code == 400:
                 detail = e.response.json().get("detail", "Unknown error")
                 return f"Error: {detail}"
-            return f"Error: DeepCode API returned status {e.response.status_code}: {e.response.text}"
+            return (
+                f"Error: DeepCode API returned status {e.response.status_code}: {e.response.text}"
+            )
         except Exception as e:
             return f"Error responding to interaction: {str(e)}"
 
@@ -469,6 +472,7 @@ class DeepCodeRespondTool(Tool):
 # ============================================================
 # Helper: create all DeepCode tools at once
 # ============================================================
+
 
 def create_all_tools(api_url: str | None = None) -> list[Tool]:
     """
