@@ -159,7 +159,7 @@
 
 ## 📰 News
 
-🎉 **[2025-02] DeepCode + nanobot Integration — Chat with DeepCode via Feishu Bot!**
+🎉 **[2025-02] nanobot ✖️ DeepCode. Just chat naturally with openclaw/nanobot to handle your coding tasks:**
 
 <div align="center">
 <table><tr>
@@ -169,8 +169,8 @@
 </tr></table>
 </div>
 
-- [nanobot](https://github.com/HKUDS/nanobot) now connects to DeepCode — send messages in **Feishu** and get auto-generated code back
-- Supports **Paper-to-Code** and **Chat-to-Code**, plus real-time task tracking, all from your chat app
+- [nanobot](https://github.com/HKUDS/nanobot) nanobot now powers your agentic coding & engineering! 🤖💻
+- Step away from your laptop — make vibe coding even more vibe! Code directly from your phone! 📱✨
 - One-command deploy: `./nanobot/run_nanobot.sh` → **[Setup Guide →](#-nanobot-integration-feishu-chatbot)**
 
 <div align="center">
